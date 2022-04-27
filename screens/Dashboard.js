@@ -60,12 +60,19 @@ export default function Dashboard() {
         <Tab.Screen
           name="WishlistScreen"
           component={WishlistScreen}
-          options={{ headerShown: false, tabBarLabel: 'Wishlist' }}
+          options={{
+            headerShown: false,
+            tabBarLabel: 'Wishlist',
+            tabBarActiveTintColor: Colors.accentColor,
+          }}
         />
         <Tab.Screen
           name="CartScreen"
           component={CartScreen}
-          options={{ headerShown: false, tabBarLabel: 'Cart' }}
+          options={{
+            headerShown: false,
+            tabBarLabel: 'Cart',
+          }}
         />
         <Tab.Screen
           name="AccountScreen"

@@ -1,5 +1,4 @@
 import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
 import Search from '../searchScreens/Search';
@@ -11,7 +10,7 @@ const Stack = createNativeStackNavigator();
 
 const headerOption = data => {
   return {
-    headerShown: true,
+    headerShown: data.headerShown,
     title: data.title,
     headerStyle: {
       backgroundColor: Colors.primaryColor,
@@ -35,7 +34,7 @@ const SearchScreen = () => {
       <Stack.Screen
         name="SearchResult"
         component={SearchResult}
-        options={{ headerShown: false }}
+        options={headerOption({ headerShown: false })}
       />
       <Stack.Screen
         name="ProductDetails"

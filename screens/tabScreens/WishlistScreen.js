@@ -1,20 +1,43 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
+
+import Wihslist from '../wishlistScreens/Wishlist';
+import ProductDetails from '../commonScreens/ProductDetails';
+import Colors from '../../constants/Colors';
+
+const Stack = createNativeStackNavigator();
+
+const headerOption = data => {
+  return {
+    headerShown: true,
+    title: data.title,
+    headerStyle: {
+      backgroundColor: Colors.accentColor,
+    },
+    headerTintColor: '#fff',
+    headerTitleStyle: {
+      fontSize: 22,
+      fontWeight: 'bold',
+    },
+  };
+};
 
 const WishlistScreen = () => {
   return (
-    <View style={styles.screen}>
-      <Text style={{ color: 'black' }}>Wishlist Screen</Text>
-    </View>
+    <Stack.Navigator>
+      <Stack.Screen
+        name="Wishlist"
+        component={Wihslist}
+        options={headerOption({ title: 'My Wishlist' })}
+      />
+      <Stack.Screen
+        name="ProductDetails"
+        component={ProductDetails}
+        options={headerOption({ title: 'Details' })}
+      />
+    </Stack.Navigator>
   );
 };
-
-const styles = StyleSheet.create({
-  screen: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-});
 
 export default WishlistScreen;
