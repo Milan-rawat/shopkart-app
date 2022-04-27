@@ -5,7 +5,6 @@ const ProductDetails = ({ navigation }) => {
   return (
     <View style={styles.screen}>
       <Text style={{ color: 'black' }}>Product details</Text>
-      <Button title="click me" onPress={() => navigation.navigate('Home')} />
     </View>
   );
 };

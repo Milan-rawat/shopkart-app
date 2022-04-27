@@ -51,7 +51,11 @@ export default function Dashboard() {
         <Tab.Screen
           name="SearchScreen"
           component={SearchScreen}
-          options={{ headerShown: false, tabBarLabel: 'Search' }}
+          options={{
+            headerShown: false,
+            tabBarLabel: 'Search',
+            tabBarHideOnKeyboard: true,
+          }}
         />
         <Tab.Screen
           name="WishlistScreen"

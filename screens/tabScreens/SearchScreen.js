@@ -1,20 +1,49 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
+
+import Search from '../searchScreens/Search';
+import SearchResult from '../searchScreens/SearchResult';
+import ProductDetails from '../commonScreens/ProductDetails';
+import Colors from '../../constants/Colors';
+
+const Stack = createNativeStackNavigator();
+
+const headerOption = data => {
+  return {
+    headerShown: true,
+    title: data.title,
+    headerStyle: {
+      backgroundColor: Colors.primaryColor,
+    },
+    headerTintColor: '#fff',
+    headerTitleStyle: {
+      fontSize: 22,
+      fontWeight: 'bold',
+    },
+  };
+};
 
 const SearchScreen = () => {
   return (
-    <View style={styles.screen}>
-      <Text style={{ color: 'black' }}>Search Screen</Text>
-    </View>
+    <Stack.Navigator>
+      <Stack.Screen
+        name="Search"
+        component={Search}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="SearchResult"
+        component={SearchResult}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="ProductDetails"
+        component={ProductDetails}
+        options={headerOption({ title: 'Details' })}
+      />
+    </Stack.Navigator>
   );
 };
-
-const styles = StyleSheet.create({
-  screen: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-});
 
 export default SearchScreen;
