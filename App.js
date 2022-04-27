@@ -15,7 +15,7 @@ function App() {
           name="SplashScreen"
           component={SplashScreen}
           options={{ headerShown: false }}
-        />
+          />
         <Stack.Screen
           name="Dashboard"
           component={Dashboard}
