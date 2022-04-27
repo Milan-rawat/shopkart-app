@@ -5,7 +5,7 @@ import Colors from '../constants/Colors';
 
 export default function SplashScreen({ navigation }) {
   setTimeout(() => {
-    navigation.replace('Home');
+    navigation.replace('Dashboard');
   }, 1500);
   return (
     <View style={styles.splashScreenContainer}>

@@ -3,7 +3,7 @@ import { NavigationContainer, DarkTheme } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
 import SplashScreen from './screens/SplashScreen';
-import HomeScreen from './screens/HomeScreen';
+import Dashboard from './screens/Dashboard';
 
 const Stack = createNativeStackNavigator();
 
@@ -17,8 +17,8 @@ function App() {
           options={{ headerShown: false }}
         />
         <Stack.Screen
-          name="Home"
-          component={HomeScreen}
+          name="Dashboard"
+          component={Dashboard}
           options={{ headerShown: false }}
         />
       </Stack.Navigator>
