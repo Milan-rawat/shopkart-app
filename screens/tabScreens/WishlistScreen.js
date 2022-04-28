@@ -2,7 +2,7 @@ import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
-import Wihslist from '../wishlistScreens/Wishlist';
+import Wishlist from '../wishlistScreens/Wishlist';
 import ProductDetails from '../commonScreens/ProductDetails';
 import Colors from '../../constants/Colors';
 
@@ -28,7 +28,7 @@ const WishlistScreen = () => {
     <Stack.Navigator>
       <Stack.Screen
         name="Wishlist"
-        component={Wihslist}
+        component={Wishlist}
         options={headerOption({ title: 'My Wishlist' })}
       />
       <Stack.Screen

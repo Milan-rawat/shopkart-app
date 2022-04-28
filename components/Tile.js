@@ -7,10 +7,10 @@ import {
   Dimensions,
 } from 'react-native';
 
-const Card = ({ navigation }) => {
+const Tile = ({ navigation }) => {
   return (
     <TouchableOpacity onPress={() => navigation.navigate('ProductDetails')}>
-      <View style={styles.card}>
+      <View style={styles.tile}>
         <Text style={{ color: 'black' }}>Hello World!</Text>
       </View>
     </TouchableOpacity>
@@ -18,13 +18,14 @@ const Card = ({ navigation }) => {
 };
 
 const styles = StyleSheet.create({
-  card: {
-    width: Dimensions.get('window').width / 2,
-    height: 250,
+  tile: {
+    width: Dimensions.get('window').width,
+    height: 180,
     borderWidth: 1,
     borderColor: 'lightgrey',
     backgroundColor: 'white',
+    marginTop: 15
   },
 });
 
-export default Card;
+export default Tile;
