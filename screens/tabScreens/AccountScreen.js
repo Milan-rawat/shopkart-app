@@ -8,10 +8,15 @@ import {
   TouchableNativeFeedback,
   Image,
 } from 'react-native';
+import EncryptedStorage from 'react-native-encrypted-storage';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import Colors from '../../constants/Colors';
 
 const AccountScreen = ({ navigation }) => {
+  const onLogout = () => {
+    EncryptedStorage.setItem('authData', JSON.stringify({ isLoggedIn: false }));
+    navigation.navigate('AccountScreen');
+  };
   const OptionCard = ({ data }) => {
     return (
       <View style={styles.card}>
@@ -107,7 +112,7 @@ const AccountScreen = ({ navigation }) => {
             {'  '}
             Account Settings
           </Text>
-          <Text style={styles.option}>
+          <Text style={styles.option} onPress={() => onLogout()}>
             <Ionicons
               style={styles.icon}
               onPress={() => {}}

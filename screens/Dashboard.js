@@ -1,6 +1,8 @@
 import React from 'react';
+// import { alert } from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import EncryptedStorage from 'react-native-encrypted-storage';
 
 import HomeScreen from './tabScreens/HomeScreen';
 import CartScreen from './tabScreens/CartScreen';
@@ -8,10 +10,34 @@ import AccountScreen from './tabScreens/AccountScreen';
 import WishlistScreen from './tabScreens/WishlistScreen';
 import SearchScreen from './tabScreens/SearchScreen';
 import Colors from '../constants/Colors';
+import Sign from './accountScreens/Sign';
 
 const Tab = createBottomTabNavigator();
 
-export default function Dashboard() {
+const retrieveUserSession = async () => {
+  try {
+    const authData = JSON.parse(await EncryptedStorage.getItem('authData'));
+    if (authData && authData.isLoggedIn) return true;
+
+    return false;
+  } catch (error) {
+    alert('Something Went Wrong!');
+    console.log(error);
+    return false;
+  }
+};
+
+const Dashboard = () => {
+  const [isLoggedIn, setIsLoggedIn] = React.useState(false);
+
+  React.useEffect(() => {
+    const getData = async () => {
+      const isIn = await retrieveUserSession();
+      setIsLoggedIn(isIn);
+    };
+    getData();
+  }, []);
+
   return (
     <>
       <Tab.Navigator
@@ -76,10 +102,18 @@ export default function Dashboard() {
         />
         <Tab.Screen
           name="AccountScreen"
-          component={AccountScreen}
-          options={{ headerShown: false, tabBarLabel: 'Account' }}
+          component={isLoggedIn ? AccountScreen : Sign}
+          options={{
+            headerShown: false,
+            tabBarLabel: 'Account',
+            tabBarActiveTintColor: isLoggedIn
+              ? Colors.primaryColor
+              : Colors.tertiaryColor,
+          }}
         />
       </Tab.Navigator>
     </>
   );
-}
+};
+
+export default Dashboard;

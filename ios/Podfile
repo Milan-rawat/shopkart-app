@@ -21,6 +21,8 @@ target 'shopkart' do
 
   pod 'RNVectorIcons', :path => '../node_modules/react-native-vector-icons'
 
+  pod 'react-native-encrypted-storage', :path => '../node_modules/react-native-encrypted-storage'
+
   target 'shopkartTests' do
     inherit! :complete
     # Pods for testing
