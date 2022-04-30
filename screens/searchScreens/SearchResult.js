@@ -5,20 +5,53 @@ import {
   StyleSheet,
   TouchableOpacity,
   ScrollView,
+  Dimensions,
 } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import Colors from '../../constants/Colors';
+import API from '../../constants/Env';
 
 import ProductTile from '../../components/ProductTile';
 
-const SearchResult = ({ route, navigation }) => {
-  const [textInput, setTextInput] = React.useState('');
-  const { searchKeyword } = route.params;
+const SearchResult = props => {
+  const { searchKeyword } = props.route.params;
+  const [keyword, setKeyword] = React.useState(
+    props.route.params.searchKeyword,
+  );
+  const [limit, setLimit] = React.useState(10);
+  const [page, setPage] = React.useState(1);
+  const [products, setProducts] = React.useState([]);
+  const [isLoaded, setIsLoaded] = React.useState(false);
+
+  const getData = async keyword => {
+    try {
+      const res = await fetch(
+        `${API.URL}/product/searchProducts?limit=${limit}&page=${page}&search=${keyword}`,
+        {
+          method: 'GET',
+          headers: {
+            Accept: 'application/json',
+            'Content-Type': 'application/json',
+          },
+        },
+      );
+      const response = JSON.parse(await res.text());
+      setProducts(response.allProducts);
+      setIsLoaded(true);
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
+  React.useEffect(() => {
+    getData(keyword);
+  }, []);
+
   return (
     <View style={styles.screen}>
       <View style={styles.searchBar}>
         <Ionicons
-          onPress={() => navigation.goBack()}
+          onPress={() => props.navigation.goBack()}
           name="arrow-back"
           size={24}
           color="white"
@@ -26,35 +59,53 @@ const SearchResult = ({ route, navigation }) => {
         <TouchableOpacity
           activeOpacity={1}
           style={styles.keywordContainer}
-          onPress={() => navigation.goBack()}>
-          <Text style={styles.keyword}>{searchKeyword}</Text>
+          onPress={() => props.navigation.goBack()}>
+          <Text style={styles.keyword}>{keyword}</Text>
           <Ionicons
-            onPress={() => navigation.goBack()}
+            onPress={() => props.navigation.goBack()}
             name="search"
             size={22}
             color="white"
           />
         </TouchableOpacity>
         <Ionicons
-          onPress={() => console.log(searchKeyword)}
+          onPress={() => console.log(keyword)}
           name="cart"
           size={24}
           color="white"
         />
       </View>
       <ScrollView>
-        <ProductTile {...navigation} />
-        <ProductTile {...navigation} />
-        <ProductTile {...navigation} />
-        <ProductTile {...navigation} />
-        <ProductTile {...navigation} />
-        <ProductTile {...navigation} />
-        <ProductTile {...navigation} />
-        <ProductTile {...navigation} />
-        <ProductTile {...navigation} />
-        <ProductTile {...navigation} />
-        <ProductTile {...navigation} />
-        <ProductTile {...navigation} />
+        {(!products || products.length === 0) && isLoaded && (
+          <View
+            style={{
+              flex: 1,
+              height: Dimensions.get('window').height - 250,
+              justifyContent: 'center',
+              alignItems: 'center',
+            }}>
+            <Text style={{ color: 'black', fontSize: 18 }}>
+              No Products available!
+            </Text>
+          </View>
+        )}
+        {!isLoaded && (
+          <View
+            style={{
+              flex: 1,
+              height: Dimensions.get('window').height - 250,
+              justifyContent: 'center',
+              alignItems: 'center',
+            }}>
+            <Text style={{ color: 'black', fontSize: 18 }}>Loading...</Text>
+          </View>
+        )}
+        {isLoaded &&
+          products &&
+          products.length > 0 &&
+          products.map((product, index) => (
+            <ProductTile key={index} {...props} product={product} />
+          ))}
       </ScrollView>
     </View>
   );

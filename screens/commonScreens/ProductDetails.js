@@ -12,10 +12,13 @@ import { SliderBox } from 'react-native-image-slider-box';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import Colors from '../../constants/Colors';
 
-const ProductDetails = ({ route, navigation }) => {
-  const [product, setProduct] = React.useState(route.params.product);
+const ProductDetails = props => {
+  let prd = props.route.params.product;
+  const [product, setProduct] = React.useState(prd);
   const [width, setWidth] = React.useState();
-  onLayout = e => {
+  console.log('S', product);
+
+  const onLayout = e => {
     setWidth(e.nativeEvent.layout.width);
   };
 
