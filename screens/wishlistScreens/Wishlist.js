@@ -8,20 +8,22 @@ import API from '../../constants/Env';
 const Wihslist = props => {
   const [products, setProducts] = React.useState([]);
   const [isLoaded, setIsLoaded] = React.useState(false);
+  // let userToken = JSON.parse(await EncryptedStorage.getItem('authData'));
+  // const [token, setToken] = React.useState(userToken);
 
   const getData = async () => {
-    let token = JSON.parse(await EncryptedStorage.getItem('authData'));
+    let authData = JSON.parse(await EncryptedStorage.getItem('authData'));
     try {
-      const res = await fetch(`${API.URL}/product/getMyWishlist`, {
+      const res = await fetch(`${API.URL}/wishlist/getMyWishlist`, {
         method: 'GET',
         headers: {
           Accept: 'application/json',
           'Content-Type': 'application/json',
-          Authorization: 'Bearer ' + token,
+          Authorization: 'Bearer ' + authData.token,
         },
       });
       const response = JSON.parse(await res.text());
-      setProducts(response.allProducts);
+      setProducts(response.wishlist);
       setIsLoaded(true);
     } catch (err) {
       console.log(err);
@@ -34,23 +36,36 @@ const Wihslist = props => {
   return (
     <ScrollView style={styles.screen}>
       <View style={styles.screenView}>
-        <View
-          style={{
-            flex: 1,
-            height: Dimensions.get('window').height - 250,
-            justifyContent: 'center',
-            alignItems: 'center',
-          }}>
-          <Text style={{ color: 'black', fontSize: 18 }}>Empty Wishlist!</Text>
-        </View>
-        {/* <Card {...props} />
-        <Card {...props} />
-        <Card {...props} />
-        <Card {...props} />
-        <Card {...props} />
-        <Card {...props} />
-        <Card {...props} />
-        <Card {...props} /> */}
+        {(!products || products.length === 0) && isLoaded && (
+          <View
+            style={{
+              flex: 1,
+              height: Dimensions.get('window').height - 250,
+              justifyContent: 'center',
+              alignItems: 'center',
+            }}>
+            <Text style={{ color: 'black', fontSize: 18 }}>
+              Empty Wishlist!
+            </Text>
+          </View>
+        )}
+        {!isLoaded && (
+          <View
+            style={{
+              flex: 1,
+              height: Dimensions.get('window').height - 250,
+              justifyContent: 'center',
+              alignItems: 'center',
+            }}>
+            <Text style={{ color: 'black', fontSize: 18 }}>Loading...</Text>
+          </View>
+        )}
+        {isLoaded &&
+          products &&
+          products.length > 0 &&
+          products.map((product, index) => (
+            <Card key={index} {...props} product={product} />
+          ))}
       </View>
     </ScrollView>
   );
@@ -60,7 +75,7 @@ const styles = StyleSheet.create({
   screenView: {
     flex: 1,
     flexDirection: 'row',
-    justifyContent: 'space-evenly',
+    // justifyContent: 'space-evenly',
     flexWrap: 'wrap',
     backgroundColor: '#f0f0f0',
   },
