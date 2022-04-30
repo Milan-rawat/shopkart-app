@@ -32,6 +32,7 @@ function App() {
     };
     getData();
   }, []);
+
   return (
     <GlobalContext.Provider value={[isLoggedIn, setIsLoggedIn]}>
       <NavigationContainer>

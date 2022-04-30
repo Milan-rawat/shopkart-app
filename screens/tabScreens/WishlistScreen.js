@@ -37,7 +37,7 @@ const WishlistScreen = ({ navigation }) => {
       }
     });
     return unmount;
-  }, [navigation]);
+  }, [isLoggedIn, navigation]);
 
   return (
     <Stack.Navigator>

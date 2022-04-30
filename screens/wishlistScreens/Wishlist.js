@@ -1,9 +1,36 @@
 import React from 'react';
 import { View, Text, StyleSheet, ScrollView, Dimensions } from 'react-native';
+import EncryptedStorage from 'react-native-encrypted-storage';
 
 import Card from '../../components/Card';
+import API from '../../constants/Env';
 
 const Wihslist = props => {
+  const [products, setProducts] = React.useState([]);
+  const [isLoaded, setIsLoaded] = React.useState(false);
+
+  const getData = async () => {
+    let token = JSON.parse(await EncryptedStorage.getItem('authData'));
+    try {
+      const res = await fetch(`${API.URL}/product/getMyWishlist`, {
+        method: 'GET',
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+          Authorization: 'Bearer ' + token,
+        },
+      });
+      const response = JSON.parse(await res.text());
+      setProducts(response.allProducts);
+      setIsLoaded(true);
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
+  React.useEffect(() => {
+    getData();
+  }, []);
   return (
     <ScrollView style={styles.screen}>
       <View style={styles.screenView}>

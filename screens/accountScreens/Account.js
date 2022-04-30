@@ -124,7 +124,7 @@ const Account = ({ navigation }) => {
             {userData && userData.fullName ? userData.fullName : 'User'}
           </Text>
           <View style={styles.nameContainer}>
-            {/* <Text>{userData.email}</Text> */}
+            <Text>{userData && userData.email ? userData.email : ''}</Text>
             <Ionicons
               style={styles.isVerified}
               name={
