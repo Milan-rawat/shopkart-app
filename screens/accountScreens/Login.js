@@ -11,7 +11,7 @@ import EncryptedStorage from 'react-native-encrypted-storage';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import Colors from '../../constants/Colors';
 import API from '../../constants/Env';
-
+import GlobalContext from '../../context/GlobalContext';
 const storeUserSession = async token => {
   try {
     await EncryptedStorage.setItem(
@@ -24,6 +24,7 @@ const storeUserSession = async token => {
 };
 
 const Login = ({ navigation }) => {
+  const [isLoggedIn, setIsLoggedIn] = React.useContext(GlobalContext);
   const [email, setEmail] = React.useState('');
   const [password, setPassword] = React.useState('');
   const [isLoading, setIsLoading] = React.useState(false);
@@ -55,6 +56,7 @@ const Login = ({ navigation }) => {
       } else {
         setIsLoading(false);
         await storeUserSession(response.token);
+        setIsLoggedIn(true);
         navigation.navigate('HomeScreen');
       }
     } catch (err) {

@@ -69,7 +69,7 @@ const SearchResult = props => {
           />
         </TouchableOpacity>
         <Ionicons
-          onPress={() => console.log(keyword)}
+          onPress={() => props.navigation.navigate('CartScreen')}
           name="cart"
           size={24}
           color="white"

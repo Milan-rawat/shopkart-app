@@ -13,9 +13,11 @@ import EncryptedStorage from 'react-native-encrypted-storage';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import Colors from '../../constants/Colors';
 import API from '../../constants/Env';
+import GlobalContext from '../../context/GlobalContext';
 
 const Account = ({ navigation }) => {
   const [userData, setUserData] = React.useState({});
+  const [isLoggedIn, setIsLoggedIn] = React.useContext(GlobalContext);
 
   const retrieveUserSession = async () => {
     try {
@@ -46,7 +48,11 @@ const Account = ({ navigation }) => {
     }
   };
   const onLogout = () => {
-    EncryptedStorage.setItem('authData', JSON.stringify({ isLoggedIn: false }));
+    EncryptedStorage.setItem(
+      'authData',
+      JSON.stringify({ isLoggedIn: false, token: '' }),
+    );
+    setIsLoggedIn(false);
     navigation.navigate('AccountScreen');
   };
 
@@ -114,9 +120,11 @@ const Account = ({ navigation }) => {
               }}
             />
           </View>
-          <Text style={styles.name}>{userData.fullName}</Text>
+          <Text style={styles.name}>
+            {userData && userData.fullName ? userData.fullName : 'User'}
+          </Text>
           <View style={styles.nameContainer}>
-            <Text>{userData.email}</Text>
+            {/* <Text>{userData.email}</Text> */}
             <Ionicons
               style={styles.isVerified}
               name={

@@ -10,34 +10,14 @@ import AccountScreen from './tabScreens/AccountScreen';
 import WishlistScreen from './tabScreens/WishlistScreen';
 import SearchScreen from './tabScreens/SearchScreen';
 import Colors from '../constants/Colors';
+import GlobalContext from '../context/GlobalContext';
 import Signup from './accountScreens/Signup';
 import Login from './accountScreens/Login';
 
 const Tab = createBottomTabNavigator();
 
-const retrieveUserSession = async () => {
-  try {
-    const authData = JSON.parse(await EncryptedStorage.getItem('authData'));
-    if (authData && authData.isLoggedIn) return true;
-
-    return false;
-  } catch (error) {
-    alert('Something Went Wrong!');
-    console.log(error);
-    return false;
-  }
-};
-
 const Dashboard = () => {
-  const [isLoggedIn, setIsLoggedIn] = React.useState(false);
-
-  React.useEffect(() => {
-    const getData = async () => {
-      const isIn = await retrieveUserSession();
-      setIsLoggedIn(isIn);
-    };
-    getData();
-  }, []);
+  const [isLoggedIn, setIsLoggedIn] = React.useContext(GlobalContext);
 
   return (
     <>

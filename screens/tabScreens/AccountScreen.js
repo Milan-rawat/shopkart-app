@@ -7,6 +7,7 @@ import Login from '../accountScreens/Login';
 import Signup from '../accountScreens/Signup';
 import Account from '../accountScreens/Account';
 import Colors from '../../constants/Colors';
+import GlobalContext from '../../context/GlobalContext';
 
 const Stack = createNativeStackNavigator();
 
@@ -38,8 +39,8 @@ const retrieveUserSession = async () => {
   }
 };
 
-const CartScreen = () => {
-  const [isLoggedIn, setIsLoggedIn] = React.useState(false);
+const AccountScreen = () => {
+  const [isLoggedIn, setIsLoggedIn] = React.useContext(GlobalContext);
 
   React.useEffect(() => {
     const getData = async () => {
@@ -57,11 +58,11 @@ const CartScreen = () => {
       />
       <Stack.Screen
         name="Signup"
-        component={Signup}
+        component={isLoggedIn ? Account : Signup}
         options={headerOption({ headerShown: false })}
       />
     </Stack.Navigator>
   );
 };
 
-export default CartScreen;
+export default AccountScreen;

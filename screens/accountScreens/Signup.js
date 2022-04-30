@@ -11,12 +11,13 @@ import EncryptedStorage from 'react-native-encrypted-storage';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import Colors from '../../constants/Colors';
 import API from '../../constants/Env';
+import GlobalContext from '../../context/GlobalContext';
 
-const storeUserSession = async () => {
+const storeUserSession = async token => {
   try {
     await EncryptedStorage.setItem(
       'authData',
-      JSON.stringify({ isLoggedIn: true }),
+      JSON.stringify({ isLoggedIn: true, token: token }),
     );
   } catch (error) {
     Alert.alert('something went wrong!');
@@ -27,6 +28,7 @@ const Signup = ({ navigation }) => {
   const [email, setEmail] = React.useState('');
   const [password, setPassword] = React.useState('');
   const [isLoading, setIsLoading] = React.useState(false);
+  const [isLoggedIn, setIsLoggedIn] = React.useContext(GlobalContext);
 
   const onSubmit = async () => {
     setIsLoading(true);
@@ -47,15 +49,21 @@ const Signup = ({ navigation }) => {
       const response = JSON.parse(await res.text());
       if (!response.status) {
         setIsLoading(false);
-        if (response.errors) Alert.alert(response.errors[0].msg);
+        if (response.errors[0].msg === 'Invalid value')
+          Alert.alert('Password should be minimum 8 characters');
+        else if (response.errors) Alert.alert(response.errors[0].msg);
         else if (response.message) Alert.alert(response.message);
         else Alert.alert('Something went wrong, please try again later');
+      } else {
+        setIsLoading(false);
+        await storeUserSession(response.token);
+        setIsLoggedIn(true);
+        navigation.navigate('HomeScreen');
       }
-      // await storeUserSession(response.token);
-      // navigation.navigate('HomeScreen');
-      setIsLoading(false);
     } catch (err) {
+      setIsLoading(false);
       console.log(err);
+      Alert.alert('Not a valid email');
     }
   };
   return (
