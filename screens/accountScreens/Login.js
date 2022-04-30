@@ -5,59 +5,78 @@ import {
   TextInput,
   StyleSheet,
   TouchableOpacity,
-  alert,
+  Alert,
 } from 'react-native';
 import EncryptedStorage from 'react-native-encrypted-storage';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import Colors from '../../constants/Colors';
 import API from '../../constants/Env';
 
-const storeUserSession = async () => {
+const storeUserSession = async token => {
   try {
     await EncryptedStorage.setItem(
       'authData',
-      JSON.stringify({ isLoggedIn: true }),
+      JSON.stringify({ isLoggedIn: true, token: token }),
     );
   } catch (error) {
-    alert('something went wrong!');
+    Alert.alert('something went wrong!');
   }
 };
 
-const Signup = ({ navigation }) => {
+const Login = ({ navigation }) => {
   const [email, setEmail] = React.useState('');
   const [password, setPassword] = React.useState('');
+  const [isLoading, setIsLoading] = React.useState(false);
 
   const onSubmit = async () => {
+    setIsLoading(true);
     let emailData = email;
     let passwordData = password;
-    await storeUserSession();
-    navigation.navigate('HomeScreen');
-    // try {
-    //   const res = await fetch(`${API.URL}/user/register`, {
-    //     method: 'POST',
-    //     headers: {
-    //       Accept: 'application/json',
-    //       'Content-Type': 'application/json',
-    //     },
-    //     body: JSON.stringify({
-    //       email: emailData,
-    //       password: passwordData,
-    //     }),
-    //   });
-    //   const response = JSON.parse(await res.text());
-    //   console.log('response', response);
-    // } catch (err) {
-    //   console.log(err);
-    // }
+    try {
+      const res = await fetch(`${API.URL}/user/login`, {
+        method: 'POST',
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email: emailData,
+          password: passwordData,
+          isSeller: false,
+        }),
+      });
+      const response = JSON.parse(await res.text());
+      if (!response.status) {
+        setIsLoading(false);
+        if (response.errors) Alert.alert(response.errors[0].msg);
+        else if (response.message) {
+          Alert.alert(response.message);
+        } else Alert.alert('Something went wrong, please try again later');
+      } else {
+        setIsLoading(false);
+        await storeUserSession(response.token);
+        navigation.navigate('HomeScreen');
+      }
+    } catch (err) {
+      console.log(err);
+    }
   };
   return (
     <View style={styles.screen}>
       <View style={styles.header}>
-        <Ionicons onPress={() => {}} name="close" size={22} color="white" />
+        <Ionicons
+          onPress={() => navigation.goBack()}
+          name="close"
+          size={22}
+          color="white"
+        />
         <Text style={{ color: 'white', fontSize: 22 }}>Shopkart</Text>
         <Text> </Text>
       </View>
       <View style={styles.container}>
+        <Text style={{ color: 'black', fontSize: 24, marginBottom: 20 }}>
+          Login
+        </Text>
         <TextInput
           style={styles.inputBox}
           onChangeText={setEmail}
@@ -81,12 +100,17 @@ const Signup = ({ navigation }) => {
         />
         <TouchableOpacity style={styles.button}>
           <Text style={styles.buttonText} onPress={onSubmit}>
-            Sign up
+            {isLoading ? 'Loading...' : 'Login'}
           </Text>
         </TouchableOpacity>
         <View style={styles.other}>
           <Text style={{ color: 'black' }}>
-            Already have an account? Signin
+            Don't have an account?
+            <Text
+              onPress={() => navigation.navigate('Signup')}
+              style={{ color: Colors.tertiaryColor, fontWeight: '900' }}>
+              Signup
+            </Text>
           </Text>
         </View>
         <Text
@@ -112,7 +136,6 @@ const styles = StyleSheet.create({
   },
   header: {
     flex: 0.07,
-    borderWidth: 1,
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
@@ -160,4 +183,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default Signup;
+export default Login;

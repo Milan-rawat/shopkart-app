@@ -10,7 +10,8 @@ import AccountScreen from './tabScreens/AccountScreen';
 import WishlistScreen from './tabScreens/WishlistScreen';
 import SearchScreen from './tabScreens/SearchScreen';
 import Colors from '../constants/Colors';
-import Sign from './accountScreens/Sign';
+import Signup from './accountScreens/Signup';
+import Login from './accountScreens/Login';
 
 const Tab = createBottomTabNavigator();
 
@@ -102,7 +103,7 @@ const Dashboard = () => {
         />
         <Tab.Screen
           name="AccountScreen"
-          component={isLoggedIn ? AccountScreen : Sign}
+          component={AccountScreen}
           options={{
             headerShown: false,
             tabBarLabel: 'Account',
