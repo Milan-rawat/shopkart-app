@@ -7,18 +7,96 @@ import {
   Image,
   Dimensions,
   ScrollView,
+  Alert,
 } from 'react-native';
 import { SliderBox } from 'react-native-image-slider-box';
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import EncryptedStorage from 'react-native-encrypted-storage';
 import Colors from '../../constants/Colors';
+import API from '../../constants/Env';
 
 const ProductDetails = props => {
   let prd = props.route.params.product;
   const [product, setProduct] = React.useState(prd);
   const [width, setWidth] = React.useState();
+  const [isLoggedIn, setIsLoggedIn] = React.useState(false);
+  const [wishlisted, setWishlisted] = React.useState(false);
+  const [userToken, setUserToken] = React.useState('');
 
   const onLayout = e => {
     setWidth(e.nativeEvent.layout.width);
+  };
+
+  const retrieveUserSession = async () => {
+    try {
+      const authData = JSON.parse(await EncryptedStorage.getItem('authData'));
+      if (authData && authData.isLoggedIn) {
+        setIsLoggedIn(true);
+        setUserToken(authData.token);
+        return authData;
+      }
+
+      return false;
+    } catch (error) {
+      Alert.alert('Something Went Wrong!');
+      console.log(error);
+      return false;
+    }
+  };
+
+  const fetchData = async token => {
+    try {
+      const res = await fetch(`${API.URL}/wishlist/getMyWishlist`, {
+        method: 'GET',
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+          Authorization: 'Bearer ' + token,
+        },
+      });
+      const response = JSON.parse(await res.text());
+      isInWishlist(response.wishlist);
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
+  React.useEffect(() => {
+    const getData = async () => {
+      const authData = await retrieveUserSession();
+      if (authData && authData.token) fetchData(authData.token);
+    };
+    getData();
+  }, []);
+
+  const addToWishlist = async () => {
+    let wishOrNot = 'addToWishlist';
+    if (wishlisted) wishOrNot = 'removeFromWishlist';
+    try {
+      const res = await fetch(`${API.URL}/wishlist/${wishOrNot}`, {
+        method: 'POST',
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+          Authorization: 'Bearer ' + userToken,
+        },
+        body: JSON.stringify({
+          productId: product._id,
+        }),
+      });
+      const response = JSON.parse(await res.text());
+      setWishlisted(!wishlisted);
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
+  const isInWishlist = list => {
+    let isInList = list.find(
+      wish => wish._id.toString() === product._id.toString(),
+    );
+    if (isInList) setWishlisted(true);
+    else setWishlisted(false);
   };
 
   return (
@@ -46,10 +124,12 @@ const ProductDetails = props => {
       <View style={styles.wishBtn}>
         <Ionicons
           style={styles.wishlist}
-          // onPress={() => navigation.goBack()}
+          onPress={() =>
+            isLoggedIn ? addToWishlist() : props.navigation.navigate('Account')
+          }
           name="heart"
           size={24}
-          color="#B0B0B0"
+          color={wishlisted ? Colors.accentColor : '#B0B0B0'}
         />
       </View>
       <View style={styles.infoContainer}>
@@ -62,7 +142,7 @@ const ProductDetails = props => {
               About this product
             </Text>
             {product.productPoints.map((point, index) => (
-              <Text style={{ color: 'grey', marginVertical: 3 }}>
+              <Text key={index} style={{ color: 'grey', marginVertical: 3 }}>
                 {index + 1}. {point}
               </Text>
             ))}
