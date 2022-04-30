@@ -1,11 +1,20 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, Image } from 'react-native';
 
-const ProductCard = ({ navigation }) => {
+const ProductCard = ({ navigation, product }) => {
   return (
-    <TouchableOpacity onPress={() => navigation.navigate('ProductDetails')}>
+    <TouchableOpacity
+      onPress={() =>
+        navigation.navigate("ProductDetails", {
+          product: product
+        })
+      }>
       <View style={styles.prdCard}>
-        <Text style={{ color: 'black' }}>Hello World!</Text>
+        <Image style={styles.prdImage} source={{ uri: product.images[0] }} />
+        <View style={styles.infoContainer}>
+          <Text style={styles.name}>{product.productTitle}</Text>
+          <Text style={styles.price}>{product.price} ₹</Text>
+        </View>
       </View>
     </TouchableOpacity>
   );
@@ -16,8 +25,31 @@ const styles = StyleSheet.create({
     width: 150,
     height: 200,
     margin: 5,
+    padding: 5,
     borderRadius: 5,
     backgroundColor: 'white',
+  },
+  prdImage: {
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'center',
+    height: 140,
+    width: 140,
+    resizeMode: 'contain',
+  },
+  infoContainer: {
+    padding: 10,
+    alignItems: 'center',
+  },
+  name: {
+    fontSize: 18,
+    color: 'black',
+  },
+  price: {
+    fontSize: 16,
+    fontWeight: '600',
+    marginBottom: 8,
+    color: 'green',
   },
 });
 
