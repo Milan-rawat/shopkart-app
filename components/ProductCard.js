@@ -12,7 +12,7 @@ const ProductCard = ({ navigation, product }) => {
       <View style={styles.prdCard}>
         <Image style={styles.prdImage} source={{ uri: product.images[0] }} />
         <View style={styles.infoContainer}>
-          <Text style={styles.name}>{product.productTitle}</Text>
+          <Text style={styles.name} numberOfLines={2}>{product.productTitle}</Text>
           <Text style={styles.price}>{product.price} ₹</Text>
         </View>
       </View>
@@ -33,7 +33,7 @@ const styles = StyleSheet.create({
     flexDirection: 'column',
     alignItems: 'center',
     justifyContent: 'center',
-    height: 140,
+    height: 130,
     width: 140,
     resizeMode: 'contain',
   },
@@ -42,7 +42,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   name: {
-    fontSize: 18,
+    fontSize: 16,
     color: 'black',
   },
   price: {

@@ -16,7 +16,6 @@ const ProductDetails = props => {
   let prd = props.route.params.product;
   const [product, setProduct] = React.useState(prd);
   const [width, setWidth] = React.useState();
-  console.log('S', product);
 
   const onLayout = e => {
     setWidth(e.nativeEvent.layout.width);
@@ -57,6 +56,18 @@ const ProductDetails = props => {
         <Text style={styles.name}>{product.productTitle}</Text>
         <Text style={styles.price}>₹ {product.price}</Text>
         <Text style={styles.description}>{product.productDescription}</Text>
+        {product.productPoints ? (
+          <View style={{ marginVertical: 15 }}>
+            <Text style={{ color: 'black', fontSize: 22, marginVertical: 10 }}>
+              About this product
+            </Text>
+            {product.productPoints.map((point, index) => (
+              <Text style={{ color: 'grey', marginVertical: 3 }}>
+                {index + 1}. {point}
+              </Text>
+            ))}
+          </View>
+        ) : null}
       </View>
       <View style={styles.btnContainer}>
         <TouchableOpacity
@@ -107,11 +118,12 @@ const styles = StyleSheet.create({
   },
   description: {
     color: 'black',
-    fontSize: 18,
+    fontSize: 16,
     marginTop: 50,
   },
   btnContainer: {
     alignItems: 'center',
+    marginBottom: 50,
   },
   button: {
     width: 300,

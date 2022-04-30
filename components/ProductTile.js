@@ -14,7 +14,7 @@ const ProductTile = props => {
           source={{ uri: props.product.images[0] }}
         />
         <View style={styles.infoContainer}>
-          <Text style={styles.name}>{props.product.productTitle}</Text>
+          <Text style={styles.name} numberOfLines={3}>{props.product.productTitle}</Text>
           <Text style={styles.price}>{props.product.price} ₹</Text>
           <View style={styles.bySeller}>
             <Text style={{ color: 'grey', marginHorizontal: 5 }}>
@@ -58,10 +58,11 @@ const styles = StyleSheet.create({
   },
   infoContainer: {
     paddingHorizontal: 20,
-    alignItems: 'center',
   },
   name: {
+    width: 160,
     fontSize: 18,
+    marginVertical: 5,
     color: 'black',
   },
   price: {
@@ -73,7 +74,6 @@ const styles = StyleSheet.create({
   bySeller: {
     height: 30,
     flexDirection: 'row',
-    justifyContent: 'center',
   },
 });
 
