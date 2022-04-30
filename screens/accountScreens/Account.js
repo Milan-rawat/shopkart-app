@@ -7,16 +7,57 @@ import {
   TouchableOpacity,
   TouchableNativeFeedback,
   Image,
+  Alert,
 } from 'react-native';
 import EncryptedStorage from 'react-native-encrypted-storage';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import Colors from '../../constants/Colors';
+import API from '../../constants/Env';
 
 const Account = ({ navigation }) => {
+  const [userData, setUserData] = React.useState({});
+
+  const retrieveUserSession = async () => {
+    try {
+      const authData = JSON.parse(await EncryptedStorage.getItem('authData'));
+      if (authData && authData.isLoggedIn) return authData;
+
+      return false;
+    } catch (error) {
+      Alert.alert('Something Went Wrong!');
+      console.log(error);
+      return false;
+    }
+  };
+  const fetchData = async token => {
+    try {
+      const res = await fetch(`${API.URL}/getMe`, {
+        method: 'GET',
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+          Authorization: 'Bearer ' + token,
+        },
+      });
+      const response = JSON.parse(await res.text());
+      setUserData(response.me);
+    } catch (err) {
+      console.log(err);
+    }
+  };
   const onLogout = () => {
     EncryptedStorage.setItem('authData', JSON.stringify({ isLoggedIn: false }));
     navigation.navigate('AccountScreen');
   };
+
+  React.useEffect(() => {
+    const getData = async () => {
+      const authData = await retrieveUserSession();
+      if (authData && authData.token) fetchData(authData.token);
+    };
+    getData();
+  }, []);
+
   const OptionCard = ({ data }) => {
     return (
       <View style={styles.card}>
@@ -65,10 +106,26 @@ const Account = ({ navigation }) => {
           <View style={styles.profileContainer}>
             <Image
               style={styles.profileImage}
-              source={{ uri: 'https://i.stack.imgur.com/l60Hf.png' }}
+              source={{
+                uri:
+                  userData && userData.profilePicture
+                    ? userData.profilePicture
+                    : 'https://i.stack.imgur.com/l60Hf.png',
+              }}
             />
           </View>
-          <Text style={styles.name}>Milan Rawat</Text>
+          <Text style={styles.name}>{userData.fullName}</Text>
+          <View style={styles.nameContainer}>
+            <Text>{userData.email}</Text>
+            <Ionicons
+              style={styles.isVerified}
+              name={
+                userData.emailVerified ? 'checkmark-circle' : 'close-circle'
+              }
+              size={20}
+              color={userData.emailVerified ? '#5DE23C' : '#F72F35'}
+            />
+          </View>
         </View>
 
         <View style={styles.otherContainer}>
@@ -181,9 +238,14 @@ const styles = StyleSheet.create({
     borderRadius: 50,
     margin: 10,
   },
+  nameContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   name: {
     textAlign: 'center',
-    paddingVertical: 10,
+    padding: 10,
     fontSize: 20,
     color: 'white',
   },

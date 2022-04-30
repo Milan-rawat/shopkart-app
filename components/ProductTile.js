@@ -28,7 +28,7 @@ const ProductTile = props => {
                   : 'close-circle-outline'
               }
               size={18}
-              color={props.product.seller.emailVerified ? 'green' : 'red'}
+              color={props.product.seller.emailVerified ? '#5DE23C' : '#F72F35'}
             />
           </View>
         </View>

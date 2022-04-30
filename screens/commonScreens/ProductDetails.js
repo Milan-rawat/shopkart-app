@@ -71,17 +71,12 @@ const ProductDetails = props => {
       </View>
       <View style={styles.btnContainer}>
         <TouchableOpacity
+          onPress={() => {}}
           style={{ ...styles.button, backgroundColor: Colors.primaryColor }}>
-          <Text
-            style={{ ...styles.buttonText, color: 'white' }}
-            onPress={() => {}}>
-            Buy now
-          </Text>
+          <Text style={{ ...styles.buttonText, color: 'white' }}>Buy now</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.button}>
-          <Text style={styles.buttonText} onPress={() => {}}>
-            Add To Cart
-          </Text>
+        <TouchableOpacity onPress={() => {}} style={styles.button}>
+          <Text style={styles.buttonText}>Add To Cart</Text>
         </TouchableOpacity>
       </View>
     </ScrollView>
