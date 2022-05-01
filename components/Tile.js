@@ -10,6 +10,7 @@ import {
 import Ionicons from 'react-native-vector-icons/Ionicons';
 
 const Tile = props => {
+  const [quantity, setQuantity] = React.useState(1);
   return (
     <TouchableOpacity
       onPress={() =>
@@ -21,7 +22,7 @@ const Tile = props => {
           source={{ uri: props.product.images[0] }}
         />
         <View style={styles.infoContainer}>
-          <Text style={styles.name} numberOfLines={3}>
+          <Text style={styles.name} numberOfLines={2}>
             {props.product.productTitle}
           </Text>
           <Text style={styles.price}>{props.product.price} ₹</Text>
@@ -41,6 +42,22 @@ const Tile = props => {
               }
               size={18}
               color={props.product.seller.emailVerified ? '#5DE23C' : '#F72F35'}
+            />
+          </View>
+          <View style={styles.quantityBox}>
+            <Ionicons
+              // fontWeight={900}
+              // onPress={() => navigation.goBack()}
+              name="remove-outline"
+              size={20}
+              color="black"
+            />
+            <Text style={{ color: 'black' }}>{quantity}</Text>
+            <Ionicons
+              // onPress={() => navigation.goBack()}
+              name="add-outline"
+              size={20}
+              color="black"
             />
           </View>
         </View>
@@ -87,6 +104,15 @@ const styles = StyleSheet.create({
   bySeller: {
     height: 30,
     flexDirection: 'row',
+  },
+  quantityBox: {
+    borderWidth: 1,
+    borderColor: '#A0A0A0',
+    borderRadius: 4,
+    flexDirection: 'row',
+    padding: 5,
+    height: 30,
+    backgroundColor: 'white',
   },
 });
 

@@ -118,6 +118,7 @@ const ProductDetails = props => {
 
   React.useEffect(() => {
     const unmount = navigation.addListener('focus', () => {
+      setIsLoaded(false);
       if (isLoggedIn) {
         const getData = async () => {
           const authData = await retrieveUserSession();

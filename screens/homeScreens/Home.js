@@ -1,15 +1,35 @@
 import React from 'react';
-import { View, Text, StyleSheet, ScrollView } from 'react-native';
+import {
+  View,
+  Text,
+  StyleSheet,
+  ScrollView,
+  Dimensions,
+  RefreshControl,
+  Alert,
+  ActivityIndicator,
+} from 'react-native';
 
 import ProductCard from '../../components/ProductCard';
+import Colors from '../../constants/Colors';
 import API from '../../constants/Env';
 
 const Home = props => {
+  const [limit, setLimit] = React.useState(10);
+  const [page, setPage] = React.useState(1);
   const [products, setProducts] = React.useState([]);
-  const getData = async () => {
+  const [isLoaded, setIsLoaded] = React.useState(false);
+  const [isRefreshing, setIsRefreshing] = React.useState(false);
+  const { navigation } = props;
+
+  const getData = async isBottom => {
     try {
+      let prdPage = page;
+      if (isBottom) {
+        prdPage = page + 1;
+      }
       const res = await fetch(
-        `${API.URL}/product/getRandomProducts?limit=10&page=1`,
+        `${API.URL}/product/getRandomProducts?limit=${limit}&page=${prdPage}`,
         {
           method: 'GET',
           headers: {
@@ -19,29 +39,99 @@ const Home = props => {
         },
       );
       const response = JSON.parse(await res.text());
-      setProducts(response.products);
+      if (isBottom) {
+        setPage(prdPage);
+        setProducts(oldprds => [...oldprds, ...response.products]);
+      } else {
+        setProducts(response.products);
+        setPage(1);
+      }
+
+      setIsLoaded(true);
+      setIsRefreshing(false);
     } catch (err) {
       console.log(err);
     }
   };
 
   React.useEffect(() => {
+    setIsLoaded(false);
     getData();
   }, []);
 
+  const isCloseToBottom = ({
+    layoutMeasurement,
+    contentOffset,
+    contentSize,
+  }) => {
+    const paddingToBottom = 20;
+    return (
+      layoutMeasurement.height + contentOffset.y >=
+      contentSize.height - paddingToBottom
+    );
+  };
+
+  const onRefresh = () => {
+    setIsRefreshing(true);
+    getData();
+  };
+
   return (
-    <ScrollView style={styles.screen}>
-      <View style={styles.screenView}>
-        {(!products || products.length === 0) && (
-          <Text>No Products available!</Text>
-        )}
-        {products &&
-          products.length > 0 &&
-          products.map((product, index) => (
-            <ProductCard key={index} {...props} product={product} />
-          ))}
-      </View>
-    </ScrollView>
+    <>
+      {!isLoaded && (
+        <View
+          style={{
+            flex: 1,
+            height: Dimensions.get('window').height - 250,
+            justifyContent: 'center',
+            alignItems: 'center',
+          }}>
+          <ActivityIndicator size="large" color={Colors.primaryColor} />
+        </View>
+      )}
+      {isLoaded && (
+        <ScrollView
+          style={styles.screen}
+          refreshControl={
+            <RefreshControl
+              refreshing={isRefreshing}
+              onRefresh={() => onRefresh()}
+              tintColor="#ff0000"
+              title="Loading..."
+              titleColor="#00ff00"
+              colors={[
+                Colors.primaryColor,
+                Colors.accentColor,
+                Colors.tertiaryColor,
+              ]}
+              progressBackgroundColor="#ffffff"
+            />
+          }
+          onScroll={({ nativeEvent }) => {
+            if (isCloseToBottom(nativeEvent)) {
+              getData(true);
+            }
+          }}
+          // scrollEventThrottle={400}
+        >
+          <View style={styles.screenView}>
+            {(!products || products.length === 0) && (
+              <Text>No Products available!</Text>
+            )}
+            {products &&
+              products.length > 0 &&
+              products.map((product, index) => (
+                <ProductCard key={index} {...props} product={product} />
+              ))}
+          </View>
+          <ActivityIndicator
+            style={{ marginVertical: 15 }}
+            size="large"
+            color={Colors.primaryColor}
+          />
+        </ScrollView>
+      )}
+    </>
   );
 };
 
