@@ -129,9 +129,10 @@ const ProductDetails = props => {
           if (authData && authData.token) fetchData(authData.token);
         };
         getData();
-      } else setWishlisted(false);
-
-      setIsLoaded(true);
+      } else {
+        setWishlisted(false);
+        setIsLoaded(true);
+      }
     });
     return unmount;
   }, [isLoggedIn, navigation]);
