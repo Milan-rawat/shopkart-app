@@ -8,6 +8,7 @@ import {
   Dimensions,
   ScrollView,
   Alert,
+  ActivityIndicator,
 } from 'react-native';
 import { SliderBox } from 'react-native-image-slider-box';
 import Ionicons from 'react-native-vector-icons/Ionicons';
@@ -23,6 +24,7 @@ const ProductDetails = props => {
   const [wishlisted, setWishlisted] = React.useState(false);
   const [userToken, setUserToken] = React.useState('');
   const [isLoaded, setIsLoaded] = React.useState(false);
+  const [isLoading, setisLoading] = React.useState(false);
   const [isLoggedIn, setIsLoggedIn] = React.useContext(GlobalContext);
   const { navigation } = props;
 
@@ -97,6 +99,7 @@ const ProductDetails = props => {
   };
 
   const addToCart = async () => {
+    setisLoading(true);
     try {
       const res = await fetch(`${API.URL}/cart/addToCart`, {
         method: 'POST',
@@ -110,6 +113,7 @@ const ProductDetails = props => {
         }),
       });
       const response = JSON.parse(await res.text());
+      setisLoading(false);
       Alert.alert('Added To Cart!');
     } catch (err) {
       console.log(err);
@@ -142,7 +146,7 @@ const ProductDetails = props => {
             justifyContent: 'center',
             alignItems: 'center',
           }}>
-          <Text style={{ color: 'black', fontSize: 18 }}>Loading...</Text>
+          <ActivityIndicator size="large" color={Colors.primaryColor} />
         </View>
       )}
       {isLoaded && (
@@ -220,7 +224,9 @@ const ProductDetails = props => {
                   : props.navigation.navigate('AccountScreen')
               }
               style={styles.button}>
-              <Text style={styles.buttonText}>Add To Cart</Text>
+              <Text style={styles.buttonText}>
+                {isLoading ? 'Adding...' : 'Add To Cart'}
+              </Text>
             </TouchableOpacity>
           </View>
         </ScrollView>

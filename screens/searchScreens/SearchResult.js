@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   ScrollView,
   Dimensions,
+  ActivityIndicator,
 } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import Colors from '../../constants/Colors';
@@ -97,7 +98,7 @@ const SearchResult = props => {
               justifyContent: 'center',
               alignItems: 'center',
             }}>
-            <Text style={{ color: 'black', fontSize: 18 }}>Loading...</Text>
+            <ActivityIndicator size="large" color={Colors.primaryColor} />
           </View>
         )}
         {isLoaded &&

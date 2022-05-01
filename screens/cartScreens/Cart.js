@@ -1,7 +1,15 @@
 import React from 'react';
-import { View, Text, StyleSheet, ScrollView, Dimensions } from 'react-native';
+import {
+  View,
+  Text,
+  StyleSheet,
+  ScrollView,
+  Dimensions,
+  ActivityIndicator,
+} from 'react-native';
 import EncryptedStorage from 'react-native-encrypted-storage';
 
+import Colors from '../../constants/Colors';
 import Tile from '../../components/Tile';
 import API from '../../constants/Env';
 
@@ -58,7 +66,7 @@ const Cart = props => {
               justifyContent: 'center',
               alignItems: 'center',
             }}>
-            <Text style={{ color: 'black', fontSize: 18 }}>Loading...</Text>
+            <ActivityIndicator size="large" color={Colors.primaryColor} />
           </View>
         )}
         {isLoaded &&
