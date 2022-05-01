@@ -2,10 +2,12 @@ import React from 'react';
 import { View, Text, StyleSheet, ScrollView, Dimensions } from 'react-native';
 import EncryptedStorage from 'react-native-encrypted-storage';
 
+import GlobalContext from '../../context/GlobalContext';
 import Card from '../../components/Card';
 import API from '../../constants/Env';
 
 const Wihslist = props => {
+  const [isLoggedIn, setIsLoggedIn] = React.useContext(GlobalContext);
   const [products, setProducts] = React.useState([]);
   const [isLoaded, setIsLoaded] = React.useState(false);
   const { navigation } = props;
@@ -33,9 +35,15 @@ const Wihslist = props => {
     const unmount = navigation.addListener('focus', () => {
       setIsLoaded(false);
       getData();
+      if (!isLoggedIn) {
+        setTimeout(() => {
+          navigation.navigate('AccountScreen');
+        }, 100);
+      }
     });
     return unmount;
-  }, [navigation]);
+  }, [isLoggedIn, navigation]);
+
   return (
     <ScrollView style={styles.screen}>
       <View style={styles.screenView}>

@@ -100,8 +100,8 @@ const Login = ({ navigation }) => {
           placeholderTextColor="#002f6c"
           // ref={input => (this.password = input)}
         />
-        <TouchableOpacity style={styles.button}>
-          <Text style={styles.buttonText} onPress={onSubmit}>
+        <TouchableOpacity style={styles.button} onPress={onSubmit}>
+          <Text style={styles.buttonText}>
             {isLoading ? 'Loading...' : 'Login'}
           </Text>
         </TouchableOpacity>

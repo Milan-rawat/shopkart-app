@@ -14,15 +14,17 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import EncryptedStorage from 'react-native-encrypted-storage';
 import Colors from '../../constants/Colors';
 import API from '../../constants/Env';
+import GlobalContext from '../../context/GlobalContext';
 
 const ProductDetails = props => {
   let prd = props.route.params.product;
   const [product, setProduct] = React.useState(prd);
   const [width, setWidth] = React.useState();
-  const [isLoggedIn, setIsLoggedIn] = React.useState(false);
   const [wishlisted, setWishlisted] = React.useState(false);
   const [userToken, setUserToken] = React.useState('');
   const [isLoaded, setIsLoaded] = React.useState(false);
+  const [isLoggedIn, setIsLoggedIn] = React.useContext(GlobalContext);
+  const { navigation } = props;
 
   const onLayout = e => {
     setWidth(e.nativeEvent.layout.width);
@@ -45,14 +47,15 @@ const ProductDetails = props => {
     }
   };
 
-  const fetchData = async token => {
+  const fetchData = async () => {
+    const authData = JSON.parse(await EncryptedStorage.getItem('authData'));
     try {
       const res = await fetch(`${API.URL}/wishlist/getMyWishlist`, {
         method: 'GET',
         headers: {
           Accept: 'application/json',
           'Content-Type': 'application/json',
-          Authorization: 'Bearer ' + token,
+          Authorization: 'Bearer ' + authData.token,
         },
       });
       const response = JSON.parse(await res.text());
@@ -62,14 +65,6 @@ const ProductDetails = props => {
       console.log(err);
     }
   };
-
-  React.useEffect(() => {
-    const getData = async () => {
-      const authData = await retrieveUserSession();
-      if (authData && authData.token) fetchData(authData.token);
-    };
-    getData();
-  }, []);
 
   const addToWishlist = async () => {
     let wishOrNot = 'addToWishlist';
@@ -100,6 +95,41 @@ const ProductDetails = props => {
     if (isInList) setWishlisted(true);
     else setWishlisted(false);
   };
+
+  const addToCart = async () => {
+    try {
+      const res = await fetch(`${API.URL}/cart/addToCart`, {
+        method: 'POST',
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+          Authorization: 'Bearer ' + userToken,
+        },
+        body: JSON.stringify({
+          productId: product._id,
+        }),
+      });
+      const response = JSON.parse(await res.text());
+      Alert.alert('Added To Cart!');
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
+  React.useEffect(() => {
+    const unmount = navigation.addListener('focus', () => {
+      if (isLoggedIn) {
+        const getData = async () => {
+          const authData = await retrieveUserSession();
+          if (authData && authData.token) fetchData(authData.token);
+        };
+        getData();
+      } else setWishlisted(false);
+
+      setIsLoaded(true);
+    });
+    return unmount;
+  }, [isLoggedIn, navigation]);
 
   return (
     <>
@@ -142,7 +172,7 @@ const ProductDetails = props => {
               onPress={() =>
                 isLoggedIn
                   ? addToWishlist()
-                  : props.navigation.navigate('Account')
+                  : props.navigation.navigate('AccountScreen')
               }
               name="heart"
               size={24}
@@ -171,7 +201,9 @@ const ProductDetails = props => {
           </View>
           <View style={styles.btnContainer}>
             <TouchableOpacity
-              onPress={() => {}}
+              onPress={() =>
+                isLoggedIn ? {} : props.navigation.navigate('AccountScreen')
+              }
               style={{
                 ...styles.button,
                 backgroundColor: Colors.primaryColor,
@@ -180,7 +212,13 @@ const ProductDetails = props => {
                 Buy now
               </Text>
             </TouchableOpacity>
-            <TouchableOpacity onPress={() => {}} style={styles.button}>
+            <TouchableOpacity
+              onPress={() =>
+                isLoggedIn
+                  ? addToCart()
+                  : props.navigation.navigate('AccountScreen')
+              }
+              style={styles.button}>
               <Text style={styles.buttonText}>Add To Cart</Text>
             </TouchableOpacity>
           </View>

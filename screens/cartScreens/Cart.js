@@ -22,7 +22,6 @@ const Cart = props => {
         },
       });
       const response = JSON.parse(await res.text());
-      console.log(response);
       setProducts(response.cart);
       setIsLoaded(true);
     } catch (err) {
