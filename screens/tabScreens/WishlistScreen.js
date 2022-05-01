@@ -6,7 +6,7 @@ import EncryptedStorage from 'react-native-encrypted-storage';
 import Wishlist from '../wishlistScreens/Wishlist';
 import ProductDetails from '../commonScreens/ProductDetails';
 import Colors from '../../constants/Colors';
-// import GlobalContext from '../../context/GlobalContext';
+import GlobalContext from '../../context/GlobalContext';
 
 const Stack = createNativeStackNavigator();
 

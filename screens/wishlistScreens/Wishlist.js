@@ -30,10 +30,6 @@ const Wihslist = props => {
   };
 
   React.useEffect(() => {
-    getData();
-  }, []);
-
-  React.useEffect(() => {
     const unmount = navigation.addListener('focus', () => {
       setIsLoaded(false);
       getData();

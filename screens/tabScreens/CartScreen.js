@@ -4,6 +4,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
 import Cart from '../cartScreens/Cart';
 import ProductDetails from '../commonScreens/ProductDetails';
+import GlobalContext from '../../context/GlobalContext';
 import Colors from '../../constants/Colors';
 
 const Stack = createNativeStackNavigator();
@@ -23,7 +24,19 @@ const headerOption = data => {
   };
 };
 
-const CartScreen = () => {
+const CartScreen = ({ navigation }) => {
+  const [isLoggedIn, setIsLoggedIn] = React.useContext(GlobalContext);
+
+  React.useEffect(() => {
+    const unmount = navigation.addListener('focus', () => {
+      if (!isLoggedIn) {
+        setTimeout(() => {
+          navigation.navigate('AccountScreen');
+        }, 100);
+      }
+    });
+    return unmount;
+  }, [isLoggedIn, navigation]);
   return (
     <Stack.Navigator>
       <Stack.Screen
