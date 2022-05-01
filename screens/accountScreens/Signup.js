@@ -49,10 +49,10 @@ const Signup = ({ navigation }) => {
       const response = JSON.parse(await res.text());
       if (!response.status) {
         setIsLoading(false);
-        if (response.errors[0].msg === 'Invalid value')
+        if (response.message) Alert.alert(response.message);
+        else if (response.errors[0].msg === 'Invalid value')
           Alert.alert('Password should be minimum 8 characters');
         else if (response.errors) Alert.alert(response.errors[0].msg);
-        else if (response.message) Alert.alert(response.message);
         else Alert.alert('Something went wrong, please try again later');
       } else {
         setIsLoading(false);
