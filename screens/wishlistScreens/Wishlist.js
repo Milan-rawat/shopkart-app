@@ -8,8 +8,7 @@ import API from '../../constants/Env';
 const Wihslist = props => {
   const [products, setProducts] = React.useState([]);
   const [isLoaded, setIsLoaded] = React.useState(false);
-  // let userToken = JSON.parse(await EncryptedStorage.getItem('authData'));
-  // const [token, setToken] = React.useState(userToken);
+  const { navigation } = props;
 
   const getData = async () => {
     let authData = JSON.parse(await EncryptedStorage.getItem('authData'));
@@ -33,6 +32,14 @@ const Wihslist = props => {
   React.useEffect(() => {
     getData();
   }, []);
+
+  React.useEffect(() => {
+    const unmount = navigation.addListener('focus', () => {
+      setIsLoaded(false);
+      getData();
+    });
+    return unmount;
+  }, [navigation]);
   return (
     <ScrollView style={styles.screen}>
       <View style={styles.screenView}>

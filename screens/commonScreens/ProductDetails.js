@@ -22,6 +22,7 @@ const ProductDetails = props => {
   const [isLoggedIn, setIsLoggedIn] = React.useState(false);
   const [wishlisted, setWishlisted] = React.useState(false);
   const [userToken, setUserToken] = React.useState('');
+  const [isLoaded, setIsLoaded] = React.useState(false);
 
   const onLayout = e => {
     setWidth(e.nativeEvent.layout.width);
@@ -56,6 +57,7 @@ const ProductDetails = props => {
       });
       const response = JSON.parse(await res.text());
       isInWishlist(response.wishlist);
+      setIsLoaded(true);
     } catch (err) {
       console.log(err);
     }
@@ -100,66 +102,91 @@ const ProductDetails = props => {
   };
 
   return (
-    <ScrollView style={styles.screen}>
-      <View style={styles.imagesContainer} onLayout={onLayout}>
-        <SliderBox
-          images={product.images}
-          sliderBoxHeight={200}
-          parentWidth={width}
-          paginationBoxVerticalPadding={20}
-          circleLoop
-          resizeMethod={'resize'}
-          resizeMode={'cover'}
-          paginationBoxStyle={{
-            position: 'absolute',
-            bottom: 0,
-            padding: 0,
-            alignItems: 'center',
-            alignSelf: 'center',
+    <>
+      {!isLoaded && (
+        <View
+          style={{
+            flex: 1,
+            height: Dimensions.get('window').height - 250,
             justifyContent: 'center',
-            paddingVertical: 10,
-          }}
-        />
-      </View>
-      <View style={styles.wishBtn}>
-        <Ionicons
-          style={styles.wishlist}
-          onPress={() =>
-            isLoggedIn ? addToWishlist() : props.navigation.navigate('Account')
-          }
-          name="heart"
-          size={24}
-          color={wishlisted ? Colors.accentColor : '#B0B0B0'}
-        />
-      </View>
-      <View style={styles.infoContainer}>
-        <Text style={styles.name}>{product.productTitle}</Text>
-        <Text style={styles.price}>₹ {product.price}</Text>
-        <Text style={styles.description}>{product.productDescription}</Text>
-        {product.productPoints ? (
-          <View style={{ marginVertical: 15 }}>
-            <Text style={{ color: 'black', fontSize: 22, marginVertical: 10 }}>
-              About this product
-            </Text>
-            {product.productPoints.map((point, index) => (
-              <Text key={index} style={{ color: 'grey', marginVertical: 3 }}>
-                {index + 1}. {point}
-              </Text>
-            ))}
+            alignItems: 'center',
+          }}>
+          <Text style={{ color: 'black', fontSize: 18 }}>Loading...</Text>
+        </View>
+      )}
+      {isLoaded && (
+        <ScrollView style={styles.screen}>
+          <View style={styles.imagesContainer} onLayout={onLayout}>
+            <SliderBox
+              images={product.images}
+              sliderBoxHeight={200}
+              parentWidth={width}
+              paginationBoxVerticalPadding={20}
+              circleLoop
+              resizeMethod={'resize'}
+              resizeMode={'cover'}
+              paginationBoxStyle={{
+                position: 'absolute',
+                bottom: 0,
+                padding: 0,
+                alignItems: 'center',
+                alignSelf: 'center',
+                justifyContent: 'center',
+                paddingVertical: 10,
+              }}
+            />
           </View>
-        ) : null}
-      </View>
-      <View style={styles.btnContainer}>
-        <TouchableOpacity
-          onPress={() => {}}
-          style={{ ...styles.button, backgroundColor: Colors.primaryColor }}>
-          <Text style={{ ...styles.buttonText, color: 'white' }}>Buy now</Text>
-        </TouchableOpacity>
-        <TouchableOpacity onPress={() => {}} style={styles.button}>
-          <Text style={styles.buttonText}>Add To Cart</Text>
-        </TouchableOpacity>
-      </View>
-    </ScrollView>
+          <View style={styles.wishBtn}>
+            <Ionicons
+              style={styles.wishlist}
+              onPress={() =>
+                isLoggedIn
+                  ? addToWishlist()
+                  : props.navigation.navigate('Account')
+              }
+              name="heart"
+              size={24}
+              color={wishlisted ? Colors.accentColor : '#B0B0B0'}
+            />
+          </View>
+          <View style={styles.infoContainer}>
+            <Text style={styles.name}>{product.productTitle}</Text>
+            <Text style={styles.price}>₹ {product.price}</Text>
+            <Text style={styles.description}>{product.productDescription}</Text>
+            {product.productPoints ? (
+              <View style={{ marginVertical: 15 }}>
+                <Text
+                  style={{ color: 'black', fontSize: 22, marginVertical: 10 }}>
+                  About this product
+                </Text>
+                {product.productPoints.map((point, index) => (
+                  <Text
+                    key={index}
+                    style={{ color: 'grey', marginVertical: 3 }}>
+                    {index + 1}. {point}
+                  </Text>
+                ))}
+              </View>
+            ) : null}
+          </View>
+          <View style={styles.btnContainer}>
+            <TouchableOpacity
+              onPress={() => {}}
+              style={{
+                ...styles.button,
+                backgroundColor: Colors.primaryColor,
+              }}>
+              <Text style={{ ...styles.buttonText, color: 'white' }}>
+                Buy now
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={() => {}} style={styles.button}>
+              <Text style={styles.buttonText}>Add To Cart</Text>
+            </TouchableOpacity>
+          </View>
+        </ScrollView>
+      )}
+    </>
   );
 };
 
