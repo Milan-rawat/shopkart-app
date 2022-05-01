@@ -26,18 +26,18 @@ const headerOption = data => {
 };
 
 const WishlistScreen = ({ navigation }) => {
-  // const [isLoggedIn, setIsLoggedIn] = React.useContext(GlobalContext);
+  const [isLoggedIn, setIsLoggedIn] = React.useContext(GlobalContext);
 
-  // React.useEffect(() => {
-  //   const unmount = navigation.addListener('focus', () => {
-  //     if (!isLoggedIn) {
-  //       setTimeout(() => {
-  //         navigation.navigate('AccountScreen');
-  //       }, 100);
-  //     }
-  //   });
-  //   return unmount;
-  // }, [isLoggedIn, navigation]);
+  React.useEffect(() => {
+    const unmount = navigation.addListener('focus', () => {
+      if (!isLoggedIn) {
+        setTimeout(() => {
+          navigation.navigate('AccountScreen');
+        }, 100);
+      }
+    });
+    return unmount;
+  }, [isLoggedIn, navigation]);
 
   return (
     <Stack.Navigator>
