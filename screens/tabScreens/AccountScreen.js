@@ -8,6 +8,7 @@ import Signup from '../accountScreens/Signup';
 import Account from '../accountScreens/Account';
 import Colors from '../../constants/Colors';
 import GlobalContext from '../../context/GlobalContext';
+import Otp from '../accountScreens/Otp';
 
 const Stack = createNativeStackNavigator();
 
@@ -59,6 +60,11 @@ const AccountScreen = () => {
       <Stack.Screen
         name="Signup"
         component={isLoggedIn ? Account : Signup}
+        options={headerOption({ headerShown: false })}
+      />
+      <Stack.Screen
+        name="Otp"
+        component={Otp}
         options={headerOption({ headerShown: false })}
       />
     </Stack.Navigator>

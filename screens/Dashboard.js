@@ -90,6 +90,7 @@ const Dashboard = () => {
             tabBarActiveTintColor: isLoggedIn
               ? Colors.primaryColor
               : Colors.tertiaryColor,
+            tabBarHideOnKeyboard: true,
           }}
         />
       </Tab.Navigator>

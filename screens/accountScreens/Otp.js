@@ -6,9 +6,11 @@ import {
   StyleSheet,
   TouchableOpacity,
   Alert,
+  Button,
 } from 'react-native';
 import EncryptedStorage from 'react-native-encrypted-storage';
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import OtpInputs, { OtpInputsRef } from 'react-native-otp-inputs';
 import Colors from '../../constants/Colors';
 import API from '../../constants/Env';
 import GlobalContext from '../../context/GlobalContext';
@@ -24,48 +26,60 @@ const storeUserSession = async token => {
   }
 };
 
-const Signup = ({ navigation }) => {
-  const [email, setEmail] = React.useState('');
-  const [password, setPassword] = React.useState('');
+const Otp = ({ navigation, route }) => {
+  const [error, setError] = React.useState({ isError: false, message: '' });
   const [isLoading, setIsLoading] = React.useState(false);
-  const [isLoggedIn, setIsLoggedIn] = React.useContext(GlobalContext);
+  const [otp, setOtp] = React.useState('');
+  const otpRef = React.useRef(OtpInputsRef);
+  let userEmail = route.params.email;
+
+  React.useEffect(() => {
+    const unsubscribe = navigation.addListener('focus', () => {
+      if (otpRef.current) {
+        otpRef.current.focus();
+      }
+    });
+    return unsubscribe;
+  }, [navigation]);
 
   const onSubmit = async () => {
     setIsLoading(true);
-    let emailData = email;
-    let passwordData = password;
+    if (!otp || otp.length !== 6) {
+      setError({ isError: true, message: 'Required 6 digits Code.' });
+      setIsLoading(false);
+      return null;
+    }
     try {
-      const res = await fetch(`${API.URL}/user/register`, {
+      const res = await fetch(`${API.URL}/user/codeVerification`, {
         method: 'POST',
         headers: {
           Accept: 'application/json',
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          email: emailData,
-          password: passwordData,
+          email: userEmail,
+          verificationCode: otp,
         }),
       });
       const response = JSON.parse(await res.text());
       if (!response.status) {
         setIsLoading(false);
-        if (response.message) Alert.alert(response.message);
-        else if (response.errors[0].msg === 'Invalid value')
-          Alert.alert('Password should be minimum 8 characters');
-        else if (response.errors) Alert.alert(response.errors[0].msg);
-        else Alert.alert('Something went wrong, please try again later');
+        if (response.message) {
+          setError({
+            isError: true,
+            message: 'Code is Invalid or has expired!',
+          });
+        } else Alert.alert('Something went wrong, please try again later');
       } else {
         setIsLoading(false);
-        await storeUserSession(response.token);
-        setIsLoggedIn(true);
-        navigation.navigate('Otp', { email: response.user.email });
+        navigation.navigate('HomeScreen');
       }
     } catch (err) {
       setIsLoading(false);
       console.log(err);
-      Alert.alert('Not a valid email');
     }
   };
+
   return (
     <View style={styles.screen}>
       <View style={styles.header}>
@@ -79,45 +93,56 @@ const Signup = ({ navigation }) => {
         <Text> </Text>
       </View>
       <View style={styles.container}>
-        <Text style={{ color: 'black', fontSize: 24, marginBottom: 20 }}>
-          Signup
+        <Text
+          style={{
+            color: 'black',
+            width: 300,
+            fontSize: 15,
+            marginBottom: 50,
+          }}>
+          Please enter the verification code we've sent you on
+          milanrawat086@gmail.com
         </Text>
-        <TextInput
-          style={styles.inputBox}
-          onChangeText={setEmail}
-          underlineColorAndroid="rgba(0,0,0,0)"
-          placeholder="Email"
-          placeholderTextColor="#002f6c"
-          selectionColor="#fff"
-          keyboardType="email-address"
-          value={email}
-          //   onSubmitEditing={() => this.password.focus()}
-        />
-        <TextInput
-          style={styles.inputBox}
-          onChangeText={setPassword}
-          underlineColorAndroid="rgba(0,0,0,0)"
-          placeholder="Password"
-          secureTextEntry={true}
-          value={password}
-          placeholderTextColor="#002f6c"
-          // ref={input => (this.password = input)}
-        />
-        <TouchableOpacity style={styles.button}>
-          <Text style={styles.buttonText} onPress={onSubmit}>
-            {isLoading ? 'Loading...' : 'Sign up'}
+        <Text style={{ color: 'red', fontSize: 16 }}>{error.message}</Text>
+        <View
+          style={{
+            width: 300,
+            marginVertical: 10,
+            height: 60,
+            alignItems: 'center',
+          }}>
+          <OtpInputs
+            ref={otpRef}
+            handleChange={code => {
+              setError({ isError: false, message: '' });
+              setOtp(code);
+            }}
+            numberOfInputs={6}
+            inputContainerStyles={{
+              borderWidth: 2,
+              borderColor: error.isError ? 'red' : 'grey',
+              margin: 4,
+              borderRadius: 5,
+              justifyContent: 'center',
+              alignItems: 'center',
+            }}
+            inputStyles={{
+              color: 'black',
+              fontSize: 20,
+              paddingLeft: 14,
+            }}
+            autofillFromClipboard={false}
+            secureTextEntry={true}
+            focusStyles={{
+              borderColor: error.isError ? 'red' : Colors.primaryColor,
+            }}
+          />
+        </View>
+        <TouchableOpacity style={styles.button} onPress={() => onSubmit()}>
+          <Text style={styles.buttonText}>
+            {isLoading ? 'Verifying...' : 'Verify'}
           </Text>
         </TouchableOpacity>
-        <View style={styles.other}>
-          <Text style={{ color: 'black' }}>
-            Already have an account?
-            <Text
-              onPress={() => navigation.navigate('Account')}
-              style={{ color: Colors.tertiaryColor, fontWeight: '900' }}>
-              Login
-            </Text>
-          </Text>
-        </View>
         <Text
           style={{
             color: 'grey',
@@ -136,7 +161,7 @@ const Signup = ({ navigation }) => {
 const styles = StyleSheet.create({
   screen: {
     flex: 1,
-    backgroundColor: Colors.tertiaryColor,
+    backgroundColor: Colors.primaryColor,
     justifyContent: 'flex-end',
   },
   header: {
@@ -155,21 +180,11 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
   },
-  inputBox: {
-    width: 300,
-    backgroundColor: '#eeeeee',
-    borderRadius: 5,
-    paddingHorizontal: 16,
-    fontSize: 16,
-    color: '#002f6c',
-    marginVertical: 10,
-    elevation: 2,
-  },
   button: {
     width: 300,
     backgroundColor: 'white',
     borderWidth: 2,
-    borderColor: Colors.tertiaryColor,
+    borderColor: Colors.primaryColor,
     borderRadius: 5,
     marginVertical: 10,
     paddingVertical: 12,
@@ -177,7 +192,7 @@ const styles = StyleSheet.create({
   buttonText: {
     fontSize: 18,
     fontWeight: '500',
-    color: Colors.tertiaryColor,
+    color: Colors.primaryColor,
     textAlign: 'center',
     fontWeight: '900',
   },
@@ -188,4 +203,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default Signup;
+export default Otp;
