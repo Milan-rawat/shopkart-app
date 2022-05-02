@@ -5,6 +5,17 @@ import Colors from '../../constants/Colors';
 
 const Search = ({ navigation }) => {
   const [textInput, setTextInput] = React.useState('');
+  const textInputRef = React.useRef(null);
+
+  React.useEffect(() => {
+    const unsubscribe = navigation.addListener('focus', () => {
+      if (textInputRef.current) {
+        textInputRef.current.focus();
+      }
+    });
+    return unsubscribe;
+  }, [navigation]);
+
   return (
     <View style={styles.screen}>
       <View style={styles.searchBar}>
@@ -19,6 +30,7 @@ const Search = ({ navigation }) => {
           color="grey"
         />
         <TextInput
+          ref={textInputRef}
           style={styles.input}
           onChangeText={setTextInput}
           value={textInput}
