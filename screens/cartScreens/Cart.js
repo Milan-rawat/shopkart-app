@@ -37,6 +37,34 @@ const Cart = props => {
     }
   };
 
+  const removeMe = async productId => {
+    try {
+      setIsLoaded(false);
+      let authData = JSON.parse(await EncryptedStorage.getItem('authData'));
+      const res = await fetch(`${API.URL}/cart/removeFromCart`, {
+        method: 'POST',
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+          Authorization: 'Bearer ' + authData.token,
+        },
+        body: JSON.stringify({
+          productId: productId,
+        }),
+      });
+      const response = JSON.parse(await res.text());
+      if (response.status) {
+        let filtered = products.filter(prd => {
+          return prd.product._id.toString() !== productId.toString();
+        });
+        setProducts(filtered);
+        setIsLoaded(true);
+      }
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
   React.useEffect(() => {
     const unmount = navigation.addListener('focus', () => {
       setIsLoaded(false);
@@ -62,11 +90,15 @@ const Cart = props => {
           <View
             style={{
               flex: 1,
-              height: Dimensions.get('window').height - 250,
-              justifyContent: 'center',
-              alignItems: 'center',
+              height: Dimensions.get('window').height,
+              backgroundColor: 'white',
+              opacity: 1,
             }}>
-            <ActivityIndicator size="large" color={Colors.primaryColor} />
+            <ActivityIndicator
+              style={{ height: Dimensions.get('window').height - 250 }}
+              size="large"
+              color={Colors.primaryColor}
+            />
           </View>
         )}
         {isLoaded &&
@@ -78,6 +110,7 @@ const Cart = props => {
               {...props}
               product={cart.product}
               quantity={cart.quantity}
+              removeMe={removeMe}
             />
           ))}
       </View>

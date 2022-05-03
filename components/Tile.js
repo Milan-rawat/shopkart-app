@@ -6,21 +6,73 @@ import {
   StyleSheet,
   Dimensions,
   Image,
+  ActivityIndicator,
 } from 'react-native';
+import EncryptedStorage from 'react-native-encrypted-storage';
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import API from '../constants/Env';
+import Colors from '../constants/Colors';
 
 const Tile = props => {
-  const [quantity, setQuantity] = React.useState(1);
+  const [quantity, setQuantity] = React.useState(props.quantity);
+  const [qtyLoading, setQtyLoading] = React.useState(false);
+
+  const changeQuantity = async qtyStatus => {
+    setQtyLoading(true);
+    let authData = JSON.parse(await EncryptedStorage.getItem('authData'));
+    let qtyTo = qtyStatus === '+' ? quantity + 1 : quantity - 1;
+    try {
+      const res = await fetch(`${API.URL}/cart/changeQuantity`, {
+        method: 'PATCH',
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+          Authorization: 'Bearer ' + authData.token,
+        },
+        body: JSON.stringify({
+          productId: props.product._id,
+          quantity: qtyTo,
+        }),
+      });
+      const response = JSON.parse(await res.text());
+      if (response) {
+        setQuantity(response.cart.quantity);
+        setQtyLoading(false);
+      } else setQtyLoading(false);
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
   return (
     <TouchableOpacity
       onPress={() =>
         props.navigation.navigate('ProductDetails', { product: props.product })
       }>
       <View style={styles.tile}>
-        <Image
-          style={styles.prdImage}
-          source={{ uri: props.product.images[0] }}
-        />
+        <View>
+          <Image
+            style={styles.prdImage}
+            source={{ uri: props.product.images[0] }}
+          />
+          <Text
+            onPress={
+              qtyLoading ? null : () => props.removeMe(props.product._id)
+            }
+            style={{
+              height: 30,
+              width: 60,
+              color: 'black',
+              textAlign: 'center',
+              textAlignVertical: 'center',
+              borderWidth: 1,
+              borderColor: 'lightgrey',
+              borderRadius: 4,
+              fontSize: 16,
+            }}>
+            Delete
+          </Text>
+        </View>
         <View style={styles.infoContainer}>
           <Text style={styles.name} numberOfLines={2}>
             {props.product.productTitle}
@@ -45,20 +97,53 @@ const Tile = props => {
             />
           </View>
           <View style={styles.quantityBox}>
-            <Ionicons
-              // fontWeight={900}
-              // onPress={() => navigation.goBack()}
-              name="remove-outline"
-              size={20}
-              color="black"
-            />
-            <Text style={{ color: 'black' }}>{quantity}</Text>
-            <Ionicons
-              // onPress={() => navigation.goBack()}
-              name="add-outline"
-              size={20}
-              color="black"
-            />
+            {quantity === 1 ? (
+              <Ionicons
+                onPress={
+                  qtyLoading ? null : () => props.removeMe(props.product._id)
+                }
+                style={{
+                  height: 28,
+                  width: 50,
+                  textAlign: 'center',
+                  textAlignVertical: 'center',
+                  backgroundColor: '#E0E0E0',
+                }}
+                name="trash-outline"
+                size={20}
+                color="black"
+              />
+            ) : (
+              <TouchableOpacity
+                onPress={() => (qtyLoading ? null : changeQuantity('-'))}>
+                <Text style={{ ...styles.qtyBtn, ...styles.qtyBtn1 }}>-</Text>
+              </TouchableOpacity>
+            )}
+            <TouchableOpacity
+              style={{
+                width: 60,
+                borderLeftWidth: 1,
+                borderRightWidth: 1,
+                borderColor: '#D0D0D0',
+                justifyContent: 'center',
+              }}>
+              <Text
+                style={{
+                  color: 'black',
+                  textAlign: 'center',
+                  fontSize: 16,
+                }}>
+                {qtyLoading ? (
+                  <ActivityIndicator size="small" color={Colors.primaryColor} />
+                ) : (
+                  quantity
+                )}
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              onPress={() => (qtyLoading ? null : changeQuantity('+'))}>
+              <Text style={{ ...styles.qtyBtn, ...styles.qtyBtn2 }}>+</Text>
+            </TouchableOpacity>
           </View>
         </View>
       </View>
@@ -82,12 +167,14 @@ const styles = StyleSheet.create({
     flexDirection: 'column',
     alignItems: 'center',
     justifyContent: 'center',
-    height: 160,
+    height: 120,
     width: 160,
     resizeMode: 'contain',
   },
   infoContainer: {
+    height: 150,
     paddingHorizontal: 20,
+    justifyContent: 'space-between',
   },
   name: {
     width: 160,
@@ -107,12 +194,29 @@ const styles = StyleSheet.create({
   },
   quantityBox: {
     borderWidth: 1,
-    borderColor: '#A0A0A0',
+    borderColor: '#D0D0D0',
     borderRadius: 4,
     flexDirection: 'row',
-    padding: 5,
     height: 30,
     backgroundColor: 'white',
+    elevation: 2,
+  },
+  qtyBtn: {
+    color: 'black',
+    height: 28,
+    width: 50,
+    textAlign: 'center',
+    textAlignVertical: 'center',
+    fontSize: 24,
+    backgroundColor: '#E0E0E0',
+  },
+  qtyBtn1: {
+    borderTopLeftRadius: 3,
+    borderBottomLeftRadius: 3,
+  },
+  qtyBtn2: {
+    borderTopRightRadius: 3,
+    borderBottomRightRadius: 3,
   },
 });
 

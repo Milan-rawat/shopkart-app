@@ -27,7 +27,6 @@ const Home = props => {
     try {
       let prdPage = page;
       if (isBottom) {
-        console.log('hit');
         setIsLoadingMore(true);
         prdPage = page + 1;
       }
