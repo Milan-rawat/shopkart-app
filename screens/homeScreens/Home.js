@@ -20,12 +20,15 @@ const Home = props => {
   const [products, setProducts] = React.useState([]);
   const [isLoaded, setIsLoaded] = React.useState(false);
   const [isRefreshing, setIsRefreshing] = React.useState(false);
+  const [isLoadingMore, setIsLoadingMore] = React.useState(false);
   const { navigation } = props;
 
   const getData = async isBottom => {
     try {
       let prdPage = page;
       if (isBottom) {
+        console.log('hit');
+        setIsLoadingMore(true);
         prdPage = page + 1;
       }
       const res = await fetch(
@@ -42,6 +45,7 @@ const Home = props => {
       if (isBottom) {
         setPage(prdPage);
         setProducts(oldprds => [...oldprds, ...response.products]);
+        setIsLoadingMore(false);
       } else {
         setProducts(response.products);
         setPage(1);
@@ -109,7 +113,7 @@ const Home = props => {
           }
           onScroll={({ nativeEvent }) => {
             if (isCloseToBottom(nativeEvent)) {
-              getData(true);
+              if (!isLoadingMore) getData(true);
             }
           }}
           // scrollEventThrottle={400}
@@ -124,11 +128,13 @@ const Home = props => {
                 <ProductCard key={index} {...props} product={product} />
               ))}
           </View>
-          <ActivityIndicator
-            style={{ marginVertical: 15 }}
-            size="large"
-            color={Colors.primaryColor}
-          />
+          {isLoadingMore && (
+            <ActivityIndicator
+              style={{ marginVertical: 15 }}
+              size="large"
+              color={Colors.primaryColor}
+            />
+          )}
         </ScrollView>
       )}
     </>
