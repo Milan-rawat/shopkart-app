@@ -10,7 +10,11 @@ import {
   Alert,
   Dimensions,
   ActivityIndicator,
+  TextInput,
+  Button,
 } from 'react-native';
+import ImagePicker from 'react-native-image-picker';
+import { launchImageLibrary } from 'react-native-image-picker';
 import EncryptedStorage from 'react-native-encrypted-storage';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import Colors from '../../constants/Colors';
@@ -21,6 +25,9 @@ const Account = ({ navigation }) => {
   const [userData, setUserData] = React.useState({});
   const [isLoggedIn, setIsLoggedIn] = React.useContext(GlobalContext);
   const [isLoaded, setIsLoaded] = React.useState(false);
+  const [editing, setEditing] = React.useState(false);
+  const [photo, setPhoto] = React.useState(null);
+  const nameRef = React.useRef(null);
 
   const retrieveUserSession = async () => {
     try {
@@ -60,6 +67,32 @@ const Account = ({ navigation }) => {
     navigation.navigate('AccountScreen');
   };
 
+  const onStartEditing = async () => {
+    if (nameRef.current) {
+      nameRef.current.focus();
+    }
+  };
+
+  const onStartEdit = async () => {
+    console.log(editing);
+    setEditing(!editing);
+  };
+
+  const onSaveEdit = async () => {
+    console.log(editing);
+    setEditing(!editing);
+  };
+
+  const handleChoosePhoto = () => {
+    launchImageLibrary({ noData: true }, response => {
+      // console.log(response);
+      if (response && !response.didCancel) {
+        console.log(response);
+        setUserData({ ...userData, profilePicture: response.assets[0].uri });
+      }
+    });
+  };
+
   React.useEffect(() => {
     const getData = async () => {
       const authData = await retrieveUserSession();
@@ -67,6 +100,10 @@ const Account = ({ navigation }) => {
     };
     getData();
   }, []);
+
+  React.useEffect(() => {
+    onStartEdit();
+  }, [userData]);
 
   const OptionCard = ({ data }) => {
     return (
@@ -124,9 +161,12 @@ const Account = ({ navigation }) => {
               color="white"
             />
           </View>
+          {/* <Button title="CLick" onPress={() => console.log(photo)} /> */}
           <ScrollView>
             <View style={styles.screenHeader}>
-              <View style={styles.profileContainer}>
+              <TouchableOpacity
+                onPress={() => handleChoosePhoto()}
+                style={styles.profileContainer}>
                 <Image
                   style={styles.profileImage}
                   source={{
@@ -136,10 +176,16 @@ const Account = ({ navigation }) => {
                         : 'https://i.stack.imgur.com/l60Hf.png',
                   }}
                 />
-              </View>
-              <Text style={styles.name}>
-                {userData && userData.fullName ? userData.fullName : 'User'}
-              </Text>
+              </TouchableOpacity>
+              <TextInput
+                ref={nameRef}
+                style={styles.name}
+                onChangeText={input =>
+                  setUserData({ ...userData, fullName: input })
+                }
+                value={userData.fullName}
+              />
+
               <View style={styles.nameContainer}>
                 <Text>{userData && userData.email ? userData.email : ''}</Text>
                 <Ionicons
@@ -149,6 +195,23 @@ const Account = ({ navigation }) => {
                   }
                   size={20}
                   color={userData.emailVerified ? '#5DE23C' : '#F72F35'}
+                />
+              </View>
+              <View
+                style={{
+                  width: '100%',
+                  paddingRight: 20,
+                  alignItems: 'flex-end',
+                }}>
+                <Ionicons
+                  onPress={() => (editing ? onSaveEdit() : onStartEditing())}
+                  style={{
+                    textAlign: 'right',
+                    padding: 5,
+                  }}
+                  name={editing ? 'save-outline' : 'create-outline'}
+                  size={20}
+                  color="white"
                 />
               </View>
             </View>
@@ -234,7 +297,6 @@ const styles = StyleSheet.create({
     height: 50,
     flexDirection: 'row',
     alignItems: 'center',
-
     top: 0,
     backgroundColor: Colors.primaryColor,
     paddingHorizontal: 20,
@@ -252,8 +314,9 @@ const styles = StyleSheet.create({
   },
   screenHeader: {
     width: '100%',
-    height: 200,
+    height: 210,
     backgroundColor: Colors.primaryColor,
+    alignItems: 'center',
   },
   profileContainer: {
     justifyContent: 'center',
@@ -263,7 +326,7 @@ const styles = StyleSheet.create({
     width: 100,
     height: 100,
     borderRadius: 50,
-    margin: 10,
+    margin: 5,
   },
   nameContainer: {
     flexDirection: 'row',
@@ -272,9 +335,12 @@ const styles = StyleSheet.create({
   },
   name: {
     textAlign: 'center',
-    padding: 10,
-    fontSize: 20,
+    fontSize: 18,
     color: 'white',
+    paddingVertical: 5,
+    marginBottom: 10,
+    height: 30,
+    paddingVertical: 3,
   },
   otherContainer: {
     padding: 10,

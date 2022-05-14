@@ -23,6 +23,8 @@ target 'shopkart' do
 
   pod 'react-native-encrypted-storage', :path => '../node_modules/react-native-encrypted-storage'
 
+  pod 'react-native-image-picker', :path => '../node_modules/react-native-image-picker'
+
   target 'shopkartTests' do
     inherit! :complete
     # Pods for testing
