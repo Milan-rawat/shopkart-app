@@ -12,6 +12,7 @@ import {
   ActivityIndicator,
   TextInput,
   Button,
+  RefreshControl,
 } from 'react-native';
 import ImagePicker from 'react-native-image-picker';
 import { launchImageLibrary } from 'react-native-image-picker';
@@ -24,6 +25,7 @@ import GlobalContext from '../../context/GlobalContext';
 const Account = ({ navigation }) => {
   const [userData, setUserData] = React.useState({});
   const [isLoggedIn, setIsLoggedIn] = React.useContext(GlobalContext);
+  const [isRefreshing, setIsRefreshing] = React.useState(false);
   const [isLoaded, setIsLoaded] = React.useState(false);
   const [editing, setEditing] = React.useState(false);
   const [photo, setPhoto] = React.useState(null);
@@ -54,6 +56,7 @@ const Account = ({ navigation }) => {
       const response = JSON.parse(await res.text());
       setUserData(response.me);
       setIsLoaded(true);
+      setIsRefreshing(false);
     } catch (err) {
       console.log(err);
     }
@@ -83,21 +86,25 @@ const Account = ({ navigation }) => {
     setEditing(!editing);
   };
 
+  const onRefresh = () => {
+    setIsRefreshing(true);
+    getData();
+  };
+
   const handleChoosePhoto = () => {
     launchImageLibrary({ noData: true }, response => {
-      // console.log(response);
       if (response && !response.didCancel) {
-        console.log(response);
         setUserData({ ...userData, profilePicture: response.assets[0].uri });
       }
     });
   };
 
+  const getData = async () => {
+    const authData = await retrieveUserSession();
+    if (authData && authData.token) fetchData(authData.token);
+  };
+
   React.useEffect(() => {
-    const getData = async () => {
-      const authData = await retrieveUserSession();
-      if (authData && authData.token) fetchData(authData.token);
-    };
     getData();
   }, []);
 
@@ -162,7 +169,22 @@ const Account = ({ navigation }) => {
             />
           </View>
           {/* <Button title="CLick" onPress={() => console.log(photo)} /> */}
-          <ScrollView>
+          <ScrollView
+            refreshControl={
+              <RefreshControl
+                refreshing={isRefreshing}
+                onRefresh={() => onRefresh()}
+                tintColor="#ff0000"
+                title="Loading..."
+                titleColor="#00ff00"
+                colors={[
+                  Colors.primaryColor,
+                  Colors.accentColor,
+                  Colors.tertiaryColor,
+                ]}
+                progressBackgroundColor="#ffffff"
+              />
+            }>
             <View style={styles.screenHeader}>
               <TouchableOpacity
                 onPress={() => handleChoosePhoto()}
