@@ -67,7 +67,7 @@ const Account = ({ navigation }) => {
       JSON.stringify({ isLoggedIn: false, token: '' }),
     );
     setIsLoggedIn(false);
-    navigation.navigate('AccountScreen');
+    navigation.navigate('HomeScreen');
   };
 
   const onStartEditing = async () => {

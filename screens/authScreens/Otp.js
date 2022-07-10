@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   Alert,
   Button,
+  Dimensions,
 } from 'react-native';
 import EncryptedStorage from 'react-native-encrypted-storage';
 import Ionicons from 'react-native-vector-icons/Ionicons';
@@ -14,6 +15,7 @@ import OtpInputs, { OtpInputsRef } from 'react-native-otp-inputs';
 import Colors from '../../constants/Colors';
 import API from '../../constants/Env';
 import GlobalContext from '../../context/GlobalContext';
+import RBSheet from 'react-native-raw-bottom-sheet';
 
 const storeUserSession = async token => {
   try {
@@ -31,6 +33,7 @@ const Otp = ({ navigation, route }) => {
   const [isLoading, setIsLoading] = React.useState(false);
   const [otp, setOtp] = React.useState('');
   const otpRef = React.useRef(OtpInputsRef);
+  const refRBSheet = React.useRef();
   let userEmail = route.params.email;
 
   React.useEffect(() => {
@@ -41,6 +44,10 @@ const Otp = ({ navigation, route }) => {
     });
     return unsubscribe;
   }, [navigation]);
+
+  React.useEffect(() => {
+    refRBSheet.current.open();
+  }, []);
 
   const onSubmit = async () => {
     setIsLoading(true);
@@ -92,68 +99,87 @@ const Otp = ({ navigation, route }) => {
         <Text style={{ color: 'white', fontSize: 22 }}>Shopkart</Text>
         <Text> </Text>
       </View>
-      <View style={styles.container}>
-        <Text
-          style={{
-            color: 'black',
-            width: 300,
-            fontSize: 15,
-            marginBottom: 50,
-          }}>
-          Please enter the verification code we've sent you on
-          milanrawat086@gmail.com
-        </Text>
-        <Text style={{ color: 'red', fontSize: 16 }}>{error.message}</Text>
-        <View
-          style={{
-            width: 300,
-            marginVertical: 10,
-            height: 60,
-            alignItems: 'center',
-          }}>
-          <OtpInputs
-            ref={otpRef}
-            handleChange={code => {
-              setError({ isError: false, message: '' });
-              setOtp(code);
-            }}
-            numberOfInputs={6}
-            inputContainerStyles={{
-              borderWidth: 2,
-              borderColor: error.isError ? 'red' : 'grey',
-              margin: 4,
-              borderRadius: 5,
-              justifyContent: 'center',
-              alignItems: 'center',
-            }}
-            inputStyles={{
+      <RBSheet
+        ref={refRBSheet}
+        closeOnDragDown={true}
+        closeOnPressMask={true}
+        height={Dimensions.get('window').height - 50}
+        customStyles={{
+          wrapper: {
+            backgroundColor: 'transparent',
+          },
+          container: {
+            borderTopLeftRadius: 20,
+            borderTopRightRadius: 20,
+          },
+          draggableIcon: {
+            backgroundColor: Colors.tertiaryColor,
+          },
+        }}
+        onClose={() => navigation.goBack()}>
+        <View style={styles.container}>
+          <Text
+            style={{
               color: 'black',
-              fontSize: 20,
-              paddingLeft: 14,
-            }}
-            autofillFromClipboard={false}
-            secureTextEntry={true}
-            focusStyles={{
-              borderColor: error.isError ? 'red' : Colors.primaryColor,
-            }}
-          />
-        </View>
-        <TouchableOpacity style={styles.button} onPress={() => onSubmit()}>
-          <Text style={styles.buttonText}>
-            {isLoading ? 'Verifying...' : 'Verify'}
+              width: 300,
+              fontSize: 15,
+              marginBottom: 50,
+            }}>
+            Please enter the verification code we've sent you on
+            {userEmail}
           </Text>
-        </TouchableOpacity>
-        <Text
-          style={{
-            color: 'grey',
-            width: 300,
-            fontSize: 12,
-            marginVertical: 10,
-          }}>
-          By Continuing, you agree to Shopkart's Terms of Use and Privacy
-          Policy.
-        </Text>
-      </View>
+          <Text style={{ color: 'red', fontSize: 16 }}>{error.message}</Text>
+          <View
+            style={{
+              width: 300,
+              marginVertical: 10,
+              height: 60,
+              alignItems: 'center',
+            }}>
+            <OtpInputs
+              ref={otpRef}
+              handleChange={code => {
+                setError({ isError: false, message: '' });
+                setOtp(code);
+              }}
+              numberOfInputs={6}
+              inputContainerStyles={{
+                borderWidth: 2,
+                borderColor: error.isError ? 'red' : 'grey',
+                margin: 4,
+                borderRadius: 5,
+                justifyContent: 'center',
+                alignItems: 'center',
+              }}
+              inputStyles={{
+                color: 'black',
+                fontSize: 20,
+                paddingLeft: 14,
+              }}
+              autofillFromClipboard={false}
+              secureTextEntry={true}
+              focusStyles={{
+                borderColor: error.isError ? 'red' : Colors.primaryColor,
+              }}
+            />
+          </View>
+          <TouchableOpacity style={styles.button} onPress={() => onSubmit()}>
+            <Text style={styles.buttonText}>
+              {isLoading ? 'Verifying...' : 'Verify'}
+            </Text>
+          </TouchableOpacity>
+          <Text
+            style={{
+              color: 'grey',
+              width: 300,
+              fontSize: 12,
+              marginVertical: 10,
+            }}>
+            By Continuing, you agree to Shopkart's Terms of Use and Privacy
+            Policy.
+          </Text>
+        </View>
+      </RBSheet>
     </View>
   );
 };
@@ -162,7 +188,7 @@ const styles = StyleSheet.create({
   screen: {
     flex: 1,
     backgroundColor: Colors.primaryColor,
-    justifyContent: 'flex-end',
+    justifyContent: 'flex-start',
   },
   header: {
     flex: 0.07,
@@ -174,7 +200,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 0.93,
     justifyContent: 'flex-start',
-    paddingTop: 50,
+    paddingTop: 20,
     alignItems: 'center',
     backgroundColor: 'white',
     borderTopLeftRadius: 20,

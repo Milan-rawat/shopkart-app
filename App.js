@@ -5,8 +5,33 @@ import EncryptedStorage from 'react-native-encrypted-storage';
 
 import SplashScreen from './screens/SplashScreen';
 import Dashboard from './screens/Dashboard';
+import AuthScreen from './screens/AuthScreen';
 
 import GlobalContext from './context/GlobalContext';
+
+import { View, Text, TouchableOpacity } from 'react-native';
+
+import BottomSheet from 'react-native-simple-bottom-sheet';
+
+const Content = props => {
+  const panelRef = React.useRef(null);
+  return (
+    <View style={{ flex: 1 }}>
+      <View>
+        <Text style={{ color: 'black' }}>hello React Native!</Text>
+      </View>
+      <TouchableOpacity onPress={() => panelRef.current.togglePanel()}>
+        <Text>Toggle</Text>
+      </TouchableOpacity>
+      <BottomSheet
+        onClose={() => props.navigation.goBack()}
+        ref={ref => (panelRef.current = ref)}
+        sliderMinHeight={0}>
+        <Text style={{ paddingVertical: 20 }}>Some random content</Text>
+      </BottomSheet>
+    </View>
+  );
+};
 
 const Stack = createNativeStackNavigator();
 
@@ -45,6 +70,11 @@ function App() {
           <Stack.Screen
             name="Dashboard"
             component={Dashboard}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name="AuthScreen"
+            component={AuthScreen}
             options={{ headerShown: false }}
           />
         </Stack.Navigator>

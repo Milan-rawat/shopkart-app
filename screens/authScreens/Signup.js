@@ -6,12 +6,14 @@ import {
   StyleSheet,
   TouchableOpacity,
   Alert,
+  Dimensions
 } from 'react-native';
 import EncryptedStorage from 'react-native-encrypted-storage';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import Colors from '../../constants/Colors';
 import API from '../../constants/Env';
 import GlobalContext from '../../context/GlobalContext';
+import RBSheet from 'react-native-raw-bottom-sheet';
 
 const storeUserSession = async token => {
   try {
@@ -29,6 +31,7 @@ const Signup = ({ navigation }) => {
   const [password, setPassword] = React.useState('');
   const [isLoading, setIsLoading] = React.useState(false);
   const [isLoggedIn, setIsLoggedIn] = React.useContext(GlobalContext);
+  const refRBSheet = React.useRef();
 
   const onSubmit = async () => {
     setIsLoading(true);
@@ -58,7 +61,7 @@ const Signup = ({ navigation }) => {
         setIsLoading(false);
         await storeUserSession(response.token);
         setIsLoggedIn(true);
-        navigation.navigate('Otp', { email: response.user.email });
+        navigation.replace('Otp', { email: response.user.email });
       }
     } catch (err) {
       setIsLoading(false);
@@ -66,6 +69,11 @@ const Signup = ({ navigation }) => {
       Alert.alert('Not a valid email');
     }
   };
+
+  React.useEffect(() => {
+    refRBSheet.current.open();
+  }, []);
+
   return (
     <View style={styles.screen}>
       <View style={styles.header}>
@@ -78,57 +86,75 @@ const Signup = ({ navigation }) => {
         <Text style={{ color: 'white', fontSize: 22 }}>Shopkart</Text>
         <Text> </Text>
       </View>
-      <View style={styles.container}>
-        <Text style={{ color: 'black', fontSize: 24, marginBottom: 20 }}>
-          Signup
-        </Text>
-        <TextInput
-          style={styles.inputBox}
-          onChangeText={setEmail}
-          underlineColorAndroid="rgba(0,0,0,0)"
-          placeholder="Email"
-          placeholderTextColor="#002f6c"
-          selectionColor="#fff"
-          keyboardType="email-address"
-          value={email}
-          //   onSubmitEditing={() => this.password.focus()}
-        />
-        <TextInput
-          style={styles.inputBox}
-          onChangeText={setPassword}
-          underlineColorAndroid="rgba(0,0,0,0)"
-          placeholder="Password"
-          secureTextEntry={true}
-          value={password}
-          placeholderTextColor="#002f6c"
-          // ref={input => (this.password = input)}
-        />
-        <TouchableOpacity style={styles.button}>
-          <Text style={styles.buttonText} onPress={onSubmit}>
-            {isLoading ? 'Loading...' : 'Sign up'}
+      <RBSheet
+        ref={refRBSheet}
+        closeOnDragDown={true}
+        closeOnPressMask={true}
+        height={Dimensions.get('window').height - 50}
+        customStyles={{
+          wrapper: {
+            backgroundColor: 'transparent',
+          },
+          container: {
+            borderTopLeftRadius: 20,
+            borderTopRightRadius: 20,
+          },
+          draggableIcon: {
+            backgroundColor: Colors.tertiaryColor,
+          },
+        }}
+        onClose={() => navigation.goBack()}>
+        <View style={styles.container}>
+          <Text style={{ color: 'black', fontSize: 24, marginBottom: 20 }}>
+            Signup
           </Text>
-        </TouchableOpacity>
-        <View style={styles.other}>
-          <Text style={{ color: 'black' }}>
-            Already have an account?
-            <Text
-              onPress={() => navigation.navigate('Account')}
-              style={{ color: Colors.tertiaryColor, fontWeight: '900' }}>
-              Login
+          <TextInput
+            style={styles.inputBox}
+            onChangeText={setEmail}
+            underlineColorAndroid="rgba(0,0,0,0)"
+            placeholder="Email"
+            placeholderTextColor="#002f6c"
+            keyboardType="email-address"
+            value={email}
+            //   onSubmitEditing={() => this.password.focus()}
+          />
+          <TextInput
+            style={styles.inputBox}
+            onChangeText={setPassword}
+            underlineColorAndroid="rgba(0,0,0,0)"
+            placeholder="Password"
+            secureTextEntry={true}
+            value={password}
+            placeholderTextColor="#002f6c"
+            // ref={input => (this.password = input)}
+          />
+          <TouchableOpacity style={styles.button}>
+            <Text style={styles.buttonText} onPress={onSubmit}>
+              {isLoading ? 'Loading...' : 'Sign up'}
             </Text>
+          </TouchableOpacity>
+          <View style={styles.other}>
+            <Text style={{ color: 'black' }}>
+              Already have an account?
+              <Text
+                onPress={() => navigation.replace('Login')}
+                style={{ color: Colors.tertiaryColor, fontWeight: '900' }}>
+                Login
+              </Text>
+            </Text>
+          </View>
+          <Text
+            style={{
+              color: 'grey',
+              width: 300,
+              fontSize: 12,
+              marginVertical: 10,
+            }}>
+            By Continuing, you agree to Shopkart's Terms of Use and Privacy
+            Policy.
           </Text>
         </View>
-        <Text
-          style={{
-            color: 'grey',
-            width: 300,
-            fontSize: 12,
-            marginVertical: 10,
-          }}>
-          By Continuing, you agree to Shopkart's Terms of Use and Privacy
-          Policy.
-        </Text>
-      </View>
+      </RBSheet>
     </View>
   );
 };
@@ -137,7 +163,7 @@ const styles = StyleSheet.create({
   screen: {
     flex: 1,
     backgroundColor: Colors.tertiaryColor,
-    justifyContent: 'flex-end',
+    justifyContent: 'flex-start',
   },
   header: {
     flex: 0.07,
@@ -149,7 +175,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 0.93,
     justifyContent: 'flex-start',
-    paddingTop: 50,
     alignItems: 'center',
     backgroundColor: 'white',
     borderTopLeftRadius: 20,

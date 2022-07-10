@@ -11,12 +11,10 @@ import WishlistScreen from './tabScreens/WishlistScreen';
 import SearchScreen from './tabScreens/SearchScreen';
 import Colors from '../constants/Colors';
 import GlobalContext from '../context/GlobalContext';
-import Signup from './accountScreens/Signup';
-import Login from './accountScreens/Login';
 
 const Tab = createBottomTabNavigator();
 
-const Dashboard = () => {
+const Dashboard = props => {
   const [isLoggedIn, setIsLoggedIn] = React.useContext(GlobalContext);
 
   return (
@@ -72,6 +70,14 @@ const Dashboard = () => {
             tabBarLabel: 'Wishlist',
             tabBarActiveTintColor: Colors.accentColor,
           }}
+          listeners={() => ({
+            tabPress: event => {
+              if (!isLoggedIn) {
+                event.preventDefault();
+                props.navigation.navigate('AuthScreen');
+              }
+            },
+          })}
         />
         <Tab.Screen
           name="CartScreen"
@@ -80,6 +86,14 @@ const Dashboard = () => {
             headerShown: false,
             tabBarLabel: 'Cart',
           }}
+          listeners={() => ({
+            tabPress: event => {
+              if (!isLoggedIn) {
+                event.preventDefault();
+                props.navigation.navigate('AuthScreen');
+              }
+            },
+          })}
         />
         <Tab.Screen
           name="AccountScreen"
@@ -92,6 +106,14 @@ const Dashboard = () => {
               : Colors.tertiaryColor,
             tabBarHideOnKeyboard: true,
           }}
+          listeners={() => ({
+            tabPress: event => {
+              if (!isLoggedIn) {
+                event.preventDefault();
+                props.navigation.navigate('AuthScreen');
+              }
+            },
+          })}
         />
       </Tab.Navigator>
     </>
