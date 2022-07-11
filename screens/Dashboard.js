@@ -101,9 +101,7 @@ const Dashboard = props => {
           options={{
             headerShown: false,
             tabBarLabel: 'Account',
-            tabBarActiveTintColor: isLoggedIn
-              ? Colors.primaryColor
-              : Colors.tertiaryColor,
+            tabBarActiveTintColor: Colors.primaryColor,
             tabBarHideOnKeyboard: true,
           }}
           listeners={() => ({

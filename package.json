@@ -16,6 +16,7 @@
     "@react-navigation/native-stack": "^6.6.2",
     "react": "17.0.2",
     "react-native": "0.68.1",
+    "react-native-awesome-alerts": "^2.0.0",
     "react-native-encrypted-storage": "^4.0.2",
     "react-native-image-picker": "^4.8.2",
     "react-native-image-slider-box": "^1.1.22",

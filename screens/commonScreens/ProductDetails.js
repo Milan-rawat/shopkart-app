@@ -13,6 +13,7 @@ import {
 import { SliderBox } from 'react-native-image-slider-box';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import EncryptedStorage from 'react-native-encrypted-storage';
+import AwesomeAlert from 'react-native-awesome-alerts';
 import Colors from '../../constants/Colors';
 import API from '../../constants/Env';
 import GlobalContext from '../../context/GlobalContext';
@@ -69,6 +70,7 @@ const ProductDetails = props => {
   };
 
   const addToWishlist = async () => {
+    setWishlisted(!wishlisted);
     let wishOrNot = 'addToWishlist';
     if (wishlisted) wishOrNot = 'removeFromWishlist';
     try {
@@ -84,7 +86,9 @@ const ProductDetails = props => {
         }),
       });
       const response = JSON.parse(await res.text());
-      setWishlisted(!wishlisted);
+      if (!response.status) {
+        setWishlisted(!wishlisted);
+      }
     } catch (err) {
       console.log(err);
     }
@@ -139,6 +143,40 @@ const ProductDetails = props => {
 
   return (
     <>
+      <AwesomeAlert
+        show={true}
+        showProgress={false}
+        closeOnTouchOutside={false}
+        closeOnHardwareBackPress={false}
+        // showCancelButton={true}
+        // showConfirmButton={true}
+        // cancelText="Cancel"
+        // confirmText="Logout"
+        confirmButtonColor={Colors.primaryColor}
+        // onDismiss={() => setShowAlert(false)}
+        // onCancelPressed={() => setShowAlert(false)}
+        // onConfirmPressed={() => onLogout()}
+        customView={
+          <View>
+            <Text
+              style={{
+                color: 'black',
+                borderWidth: 1,
+                width: 90,
+                textAlign: 'center',
+              }}>
+              Added to Cart!
+            </Text>
+          </View>
+        }
+        contentContainerStyle={{
+          position: 'absolute',
+          bottom: 70,
+          width: 'auto',
+          height: 80,
+          padding: 0,
+        }}
+      />
       {!isLoaded && (
         <View
           style={{
@@ -178,7 +216,7 @@ const ProductDetails = props => {
               onPress={() =>
                 isLoggedIn
                   ? addToWishlist()
-                  : props.navigation.navigate('AccountScreen')
+                  : props.navigation.navigate('AuthScreen')
               }
               name="heart"
               size={24}
@@ -208,7 +246,7 @@ const ProductDetails = props => {
           <View style={styles.btnContainer}>
             <TouchableOpacity
               onPress={() =>
-                isLoggedIn ? {} : props.navigation.navigate('AccountScreen')
+                isLoggedIn ? {} : props.navigation.navigate('AuthScreen')
               }
               style={{
                 ...styles.button,
@@ -222,7 +260,7 @@ const ProductDetails = props => {
               onPress={() =>
                 isLoggedIn
                   ? addToCart()
-                  : props.navigation.navigate('AccountScreen')
+                  : props.navigation.navigate('AuthScreen')
               }
               style={styles.button}>
               <Text style={styles.buttonText}>

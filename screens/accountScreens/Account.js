@@ -21,6 +21,7 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import Colors from '../../constants/Colors';
 import API from '../../constants/Env';
 import GlobalContext from '../../context/GlobalContext';
+import AwesomeAlert from 'react-native-awesome-alerts';
 
 const Account = ({ navigation }) => {
   const [userData, setUserData] = React.useState({});
@@ -29,6 +30,7 @@ const Account = ({ navigation }) => {
   const [isLoaded, setIsLoaded] = React.useState(false);
   const [editing, setEditing] = React.useState(false);
   const [photo, setPhoto] = React.useState(null);
+  const [showAlert, setShowAlert] = React.useState(false);
   const nameRef = React.useRef(null);
 
   const retrieveUserSession = async () => {
@@ -256,6 +258,21 @@ const Account = ({ navigation }) => {
                 data={{ title: 'My Reviews', btnName: 'View Your Reviews' }}
               />
             </View>
+            <AwesomeAlert
+              show={showAlert}
+              showProgress={false}
+              message="Are you sure?"
+              closeOnTouchOutside={true}
+              closeOnHardwareBackPress={true}
+              showCancelButton={true}
+              showConfirmButton={true}
+              cancelText="Cancel"
+              confirmText="Logout"
+              confirmButtonColor={Colors.primaryColor}
+              onDismiss={() => setShowAlert(false)}
+              onCancelPressed={() => setShowAlert(false)}
+              onConfirmPressed={() => onLogout()}
+            />
             <View style={styles.lastOptions}>
               <Text style={styles.option}>
                 <Ionicons
@@ -279,7 +296,7 @@ const Account = ({ navigation }) => {
                 {'  '}
                 Account Settings
               </Text>
-              <Text style={styles.option} onPress={() => onLogout()}>
+              <Text style={styles.option} onPress={() => setShowAlert(true)}>
                 <Ionicons
                   style={styles.icon}
                   onPress={() => {}}

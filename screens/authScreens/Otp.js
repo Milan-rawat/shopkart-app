@@ -113,7 +113,7 @@ const Otp = ({ navigation, route }) => {
             borderTopRightRadius: 20,
           },
           draggableIcon: {
-            backgroundColor: Colors.tertiaryColor,
+            backgroundColor: Colors.primaryColor,
           },
         }}
         onClose={() => navigation.goBack()}>

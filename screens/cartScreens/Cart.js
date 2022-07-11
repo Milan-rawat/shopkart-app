@@ -8,6 +8,7 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import EncryptedStorage from 'react-native-encrypted-storage';
+import AwesomeAlert from 'react-native-awesome-alerts';
 
 import Colors from '../../constants/Colors';
 import Tile from '../../components/Tile';
@@ -16,6 +17,7 @@ import API from '../../constants/Env';
 const Cart = props => {
   const [products, setProducts] = React.useState([]);
   const [isLoaded, setIsLoaded] = React.useState(false);
+  const [deleting, setDeleting] = React.useState(false);
   const { navigation } = props;
 
   const getData = async () => {
@@ -39,7 +41,7 @@ const Cart = props => {
 
   const removeMe = async productId => {
     try {
-      setIsLoaded(false);
+      setDeleting(true);
       let authData = JSON.parse(await EncryptedStorage.getItem('authData'));
       const res = await fetch(`${API.URL}/cart/removeFromCart`, {
         method: 'POST',
@@ -58,7 +60,7 @@ const Cart = props => {
           return prd.product._id.toString() !== productId.toString();
         });
         setProducts(filtered);
-        setIsLoaded(true);
+        setDeleting(false);
       }
     } catch (err) {
       console.log(err);
@@ -75,6 +77,12 @@ const Cart = props => {
   return (
     <ScrollView style={styles.screen}>
       <View style={styles.screenView}>
+        <AwesomeAlert
+          show={deleting}
+          showProgress={true}
+          message="Deleting..."
+          confirmButtonColor={Colors.primaryColor}
+        />
         {(!products || products.length === 0) && isLoaded && (
           <View
             style={{

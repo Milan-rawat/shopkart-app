@@ -10,12 +10,15 @@ import {
 } from 'react-native';
 import EncryptedStorage from 'react-native-encrypted-storage';
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import AwesomeAlert from 'react-native-awesome-alerts';
+
 import API from '../constants/Env';
 import Colors from '../constants/Colors';
 
 const Tile = props => {
   const [quantity, setQuantity] = React.useState(props.quantity);
   const [qtyLoading, setQtyLoading] = React.useState(false);
+  const [showAlert, setShowAlert] = React.useState(false);
 
   const changeQuantity = async qtyStatus => {
     setQtyLoading(true);
@@ -49,6 +52,24 @@ const Tile = props => {
       onPress={() =>
         props.navigation.navigate('ProductDetails', { product: props.product })
       }>
+      <AwesomeAlert
+        show={showAlert}
+        showProgress={false}
+        message="Are you sure?"
+        closeOnTouchOutside={true}
+        closeOnHardwareBackPress={true}
+        showCancelButton={true}
+        showConfirmButton={true}
+        cancelText="Cancel"
+        confirmText="Delete"
+        confirmButtonColor={Colors.primaryColor}
+        onDismiss={() => setShowAlert(false)}
+        onCancelPressed={() => setShowAlert(false)}
+        onConfirmPressed={() => {
+          setShowAlert(false);
+          props.removeMe(props.product._id);
+        }}
+      />
       <View style={styles.tile}>
         <View>
           <Image
@@ -56,9 +77,7 @@ const Tile = props => {
             source={{ uri: props.product.images[0] }}
           />
           <Text
-            onPress={
-              qtyLoading ? null : () => props.removeMe(props.product._id)
-            }
+            onPress={qtyLoading ? null : () => setShowAlert(true)}
             style={{
               height: 30,
               width: 60,
