@@ -31,9 +31,39 @@ const Login = ({ navigation }) => {
   const [email, setEmail] = React.useState('');
   const [password, setPassword] = React.useState('');
   const [isLoading, setIsLoading] = React.useState(false);
+  const [error, setError] = React.useState({
+    emailError: false,
+    passwordError: false,
+    message: '',
+  });
   const refRBSheet = React.useRef();
 
   const onSubmit = async () => {
+    if (email.trim().length === 0 || password.trim().length === 0) {
+      if (email.trim().length === 0 && password.trim().length === 0) {
+        setError({
+          emailError: true,
+          passwordError: true,
+          message: 'Email & Password required!',
+        });
+      }
+      if (email.trim().length === 0) {
+        setError(err => ({
+          ...err,
+          emailError: true,
+          message: 'Email required!',
+        }));
+      }
+      if (password.trim().length === 0) {
+        setError(err => ({
+          ...err,
+          passwordError: true,
+          message: 'Password required!',
+        }));
+      }
+      return;
+    }
+
     setIsLoading(true);
     let emailData = email;
     let passwordData = password;
@@ -53,10 +83,20 @@ const Login = ({ navigation }) => {
       const response = JSON.parse(await res.text());
       if (!response.status) {
         setIsLoading(false);
-        if (response.errors) Alert.alert(response.errors[0].msg);
-        else if (response.message) {
-          Alert.alert(response.message);
-        } else Alert.alert('Something went wrong, please try again later');
+        if (response.errors) {
+          Alert.alert(response.errors[0].msg);
+        } else if (response.message)
+          setError({
+            emailError: false,
+            passwordError: false,
+            message: response.message,
+          });
+        else
+          setError({
+            emailError: false,
+            passwordError: false,
+            message: 'Something went wrong, please try again later',
+          });
       } else {
         setIsLoading(false);
         await storeUserSession(response.token);
@@ -106,25 +146,46 @@ const Login = ({ navigation }) => {
           <Text style={{ color: 'black', fontSize: 24, marginBottom: 20 }}>
             Login
           </Text>
+          <Text style={{ color: 'red', fontSize: 16 }}>{error.message}</Text>
           <TextInput
-            style={styles.inputBox}
+            style={{
+              ...styles.inputBox,
+              borderColor: error.emailError ? 'red' : 'lightgrey',
+            }}
             onChangeText={setEmail}
+            onChange={e => {
+              setError(err => ({
+                ...err,
+                emailError: false,
+                message: '',
+              }));
+              setEmail(e.target.value);
+            }}
             underlineColorAndroid="rgba(0,0,0,0)"
             placeholder="Email"
             placeholderTextColor="#002f6c"
             keyboardType="email-address"
             value={email}
-            //   onSubmitEditing={() => this.password.focus()}
           />
           <TextInput
-            style={styles.inputBox}
+            style={{
+              ...styles.inputBox,
+              borderColor: error.passwordError ? 'red' : 'lightgrey',
+            }}
             onChangeText={setPassword}
+            onChange={e => {
+              setError(err => ({
+                ...err,
+                passwordError: false,
+                message: '',
+              }));
+              setPassword(e.target.value);
+            }}
             underlineColorAndroid="rgba(0,0,0,0)"
             placeholder="Password"
             secureTextEntry={true}
             value={password}
             placeholderTextColor="#002f6c"
-            // ref={input => (this.password = input)}
           />
           <TouchableOpacity style={styles.button} onPress={onSubmit}>
             <Text style={styles.buttonText}>
@@ -187,6 +248,7 @@ const styles = StyleSheet.create({
     color: '#002f6c',
     marginVertical: 10,
     elevation: 2,
+    borderWidth: 1,
   },
   button: {
     width: 300,

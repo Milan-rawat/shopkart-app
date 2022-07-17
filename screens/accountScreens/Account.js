@@ -69,6 +69,7 @@ const Account = ({ navigation }) => {
       JSON.stringify({ isLoggedIn: false, token: '' }),
     );
     setIsLoggedIn(false);
+    setShowAlert(false);
     navigation.navigate('HomeScreen');
   };
 
@@ -107,8 +108,12 @@ const Account = ({ navigation }) => {
   };
 
   React.useEffect(() => {
-    getData();
-  }, []);
+    const unmount = navigation.addListener('focus', () => {
+      setIsLoaded(false);
+      getData();
+    });
+    return unmount;
+  }, [navigation]);
 
   React.useEffect(() => {
     onStartEdit();

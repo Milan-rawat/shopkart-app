@@ -6,7 +6,7 @@ import {
   StyleSheet,
   TouchableOpacity,
   Alert,
-  Dimensions
+  Dimensions,
 } from 'react-native';
 import EncryptedStorage from 'react-native-encrypted-storage';
 import Ionicons from 'react-native-vector-icons/Ionicons';
@@ -31,9 +31,47 @@ const Signup = ({ navigation }) => {
   const [password, setPassword] = React.useState('');
   const [isLoading, setIsLoading] = React.useState(false);
   const [isLoggedIn, setIsLoggedIn] = React.useContext(GlobalContext);
+  const [error, setError] = React.useState({
+    emailError: false,
+    passwordError: false,
+    message: '',
+  });
   const refRBSheet = React.useRef();
 
   const onSubmit = async () => {
+    if (email.trim().length === 0 || password.trim().length === 0) {
+      if (email.trim().length === 0 && password.trim().length === 0) {
+        setError({
+          emailError: true,
+          passwordError: true,
+          message: 'Email & Password required!',
+        });
+      }
+      if (email.trim().length === 0) {
+        setError(err => ({
+          ...err,
+          emailError: true,
+          message: 'Email required!',
+        }));
+      }
+      if (password.length === 0) {
+        setError(err => ({
+          ...err,
+          passwordError: true,
+          message: 'Password required!',
+        }));
+      }
+      return;
+    }
+    if (password.length < 8) {
+      setError(err => ({
+        ...err,
+        passwordError: true,
+        message: 'Password should be minimum 8 characters!',
+      }));
+      return;
+    }
+
     setIsLoading(true);
     let emailData = email;
     let passwordData = password;
@@ -52,11 +90,31 @@ const Signup = ({ navigation }) => {
       const response = JSON.parse(await res.text());
       if (!response.status) {
         setIsLoading(false);
-        if (response.message) Alert.alert(response.message);
-        else if (response.errors[0].msg === 'Invalid value')
-          Alert.alert('Password should be minimum 8 characters');
-        else if (response.errors) Alert.alert(response.errors[0].msg);
-        else Alert.alert('Something went wrong, please try again later');
+        if (response.message) {
+          setError({
+            passwordError: false,
+            emailError: true,
+            message: response.message,
+          });
+        } else if (response.errors[0].msg === 'Invalid value') {
+          setError({
+            passwordError: false,
+            emailError: false,
+            message: response.errors[0].msg,
+          });
+        } else if (response.errors) {
+          setError({
+            passwordError: false,
+            emailError: false,
+            message: 'Something went wrong, please try again later',
+          });
+        } else {
+          setError({
+            passwordError: false,
+            emailError: false,
+            message: 'Something went wrong, please try again later',
+          });
+        }
       } else {
         setIsLoading(false);
         await storeUserSession(response.token);
@@ -65,8 +123,11 @@ const Signup = ({ navigation }) => {
       }
     } catch (err) {
       setIsLoading(false);
-      console.log(err);
-      Alert.alert('Not a valid email');
+      setError({
+        passwordError: false,
+        emailError: true,
+        message: 'Not a valid email!',
+      });
     }
   };
 
@@ -108,28 +169,49 @@ const Signup = ({ navigation }) => {
           <Text style={{ color: 'black', fontSize: 24, marginBottom: 20 }}>
             Signup
           </Text>
+          <Text style={{ color: 'red', fontSize: 16 }}>{error.message}</Text>
           <TextInput
-            style={styles.inputBox}
+            style={{
+              ...styles.inputBox,
+              borderColor: error.emailError ? 'red' : 'lightgrey',
+            }}
             onChangeText={setEmail}
+            onChange={e => {
+              setError(err => ({
+                ...err,
+                emailError: false,
+                message: '',
+              }));
+              setEmail(e.target.value);
+            }}
             underlineColorAndroid="rgba(0,0,0,0)"
             placeholder="Email"
             placeholderTextColor="#002f6c"
             keyboardType="email-address"
             value={email}
-            //   onSubmitEditing={() => this.password.focus()}
           />
           <TextInput
-            style={styles.inputBox}
+            style={{
+              ...styles.inputBox,
+              borderColor: error.passwordError ? 'red' : 'lightgrey',
+            }}
             onChangeText={setPassword}
+            onChange={e => {
+              setError(err => ({
+                ...err,
+                passwordError: false,
+                message: '',
+              }));
+              setPassword(e.target.value);
+            }}
             underlineColorAndroid="rgba(0,0,0,0)"
             placeholder="Password"
             secureTextEntry={true}
             value={password}
             placeholderTextColor="#002f6c"
-            // ref={input => (this.password = input)}
           />
-          <TouchableOpacity style={styles.button}>
-            <Text style={styles.buttonText} onPress={onSubmit}>
+          <TouchableOpacity style={styles.button} onPress={onSubmit}>
+            <Text style={styles.buttonText}>
               {isLoading ? 'Loading...' : 'Sign up'}
             </Text>
           </TouchableOpacity>
@@ -189,6 +271,7 @@ const styles = StyleSheet.create({
     color: '#002f6c',
     marginVertical: 10,
     elevation: 2,
+    borderWidth: 1,
   },
   button: {
     width: 300,
